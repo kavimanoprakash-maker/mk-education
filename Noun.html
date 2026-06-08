@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ta">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <meta name="theme-color" content="#121212">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <title>Noun (பெயர்ச்சொல்) - MK Education Centre</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- Top Navigation -->
+    <nav class="main-nav">
+        <div class="nav-container">
+            <div class="logo">
+                <a href="index.html">
+                    <i class="fas fa-graduation-cap"></i>
+                    <span>MK Education Centre</span>
+                </a>
+            </div>
+            <div class="nav-links">
+                <a href="#" onclick="resetProgress(); return false;" title="மீட்டமை">
+                    <i class="fas fa-redo"></i>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Quiz Header -->
+    <div class="quiz-header container">
+
+        <!-- Topic Title -->
+        <div class="topic-title">
+            <i class="fas fa-file-signature"></i>
+            <h1>Noun (பெயர்ச்சொல்)</h1>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="progress-container">
+            <div class="progress-header">
+                <span>உங்கள் முன்னேற்றம்:</span>
+                <span id="progress-text">0/120</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-value" id="total-questions">120</div>
+                <div class="stat-label">மொத்த கேள்விகள்</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="answered">0</div>
+                <div class="stat-label">பதிலளிக்கப்பட்டவை</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="correct">0</div>
+                <div class="stat-label">சரியான பதில்கள்</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="percentage">0%</div>
+                <div class="stat-label">வெற்றி விகிதம்</div>
+            </div>
+        </div>
+
+        <!-- Question Navigation Dots -->
+        <div class="question-nav" id="question-nav"></div>
+
+        <!-- Navigation Controls -->
+        <div class="controls">
+            <button class="btn btn-secondary" onclick="window.location.href='index.html'">
+                <i class="fas fa-home"></i> முகப்பு
+            </button>
+            <button class="btn btn-primary" onclick="window.location.href='Singular_Plural.html'">
+                அடுத்த தலைப்பு <i class="fas fa-arrow-right"></i>
+            </button>
+        </div>
+
+    </div><!-- /quiz-header -->
+
+    <!-- Questions Section -->
+    <div class="container">
+        <section class="topic-section" id="noun-section">
+            <h2 class="topic-header">
+                <i class="fas fa-question-circle"></i> Noun கேள்விகள்
+            </h2>
+            <div class="qa-container" id="noun-qa"></div>
+        </section>
+    </div>
+
+    <!-- Fixed: Question Counter -->
+    <div class="question-counter">
+        <span id="current-question">1</span> / <span id="total-question">120</span>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-bottom">
+            <p>&copy; 2026 MK Education Centre</p>
+            <p>Noun (பெயர்ச்சொல்) Practice Questions</p>
+        </div>
+    </footer>
+
+    <!-- Back to Top -->
+    <button id="backToTop" class="back-to-top-quiz">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <script src="questions.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

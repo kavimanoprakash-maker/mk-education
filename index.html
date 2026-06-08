@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="ta">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <meta name="theme-color" content="#121212">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <title>MK Education Centre - ஆங்கில இலக்கணம்</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Index-only overrides */
+        body { padding-top: 0; }   /* index has no top nav */
+
+        .header {
+            background: linear-gradient(135deg, #1a1a2e 0%, #162032 50%, #1a2a1a 100%);
+            padding: 28px 16px 22px;
+            text-align: center;
+            border-bottom: 3px solid var(--accent);
+            position: relative;
+            overflow: hidden;
+        }
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent), var(--accent-secondary), var(--accent));
+            background-size: 200%;
+            animation: shimmer 3s linear infinite;
+        }
+        @keyframes shimmer {
+            0%   { background-position: -200% 0; }
+            100% { background-position:  200% 0; }
+        }
+
+        .header-content h1 {
+            font-size: 1.6rem;
+            color: #fff;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .header-content .subtitle {
+            color: var(--accent);
+            font-size: 0.88rem;
+            margin-bottom: 16px;
+        }
+
+        .header .stats {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            background: none;
+            border: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .header .stat-item {
+            background: rgba(255,255,255,0.08);
+            padding: 10px 16px;
+            border-radius: 10px;
+            min-width: 90px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .header .stat-number { font-size: 1.5rem; font-weight: 700; color: var(--accent); }
+        .header .stat-label  { font-size: 0.72rem; color: #cbd5e1; margin-top: 2px; }
+
+        @media (min-width: 600px) {
+            .header { padding: 36px 24px 28px; }
+            .header-content h1 { font-size: 2rem; }
+            .header-content .subtitle { font-size: 1rem; }
+            .header .stat-item { min-width: 110px; }
+        }
+
+        @media (min-width: 768px) {
+            .header-content h1 { font-size: 2.4rem; }
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <h1>
+                    <i class="fas fa-graduation-cap" style="color:var(--accent)"></i>
+                    MK Education Centre
+                </h1>
+                <p class="subtitle">ஆங்கில இலக்கணம் — தமிழ் மாணவர்களுக்காக</p>
+
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-number" id="total-topics">16</div>
+                        <div class="stat-label">தலைப்புகள்</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">1000+</div>
+                        <div class="stat-label">கேள்விகள்</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="overall-progress">0%</div>
+                        <div class="stat-label">முன்னேற்றம்</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <a href="#topics" class="action-btn-mobile">
+                <i class="fas fa-play"></i> பயிற்சி தொடங்கு
+            </a>
+            <a href="#" onclick="showRandomTopic(); return false;" class="action-btn-mobile secondary">
+                <i class="fas fa-random"></i> சீரற்ற தலைப்பு
+            </a>
+        </div>
+
+        <!-- Topics -->
+        <h2 class="section-header" id="topics">
+            <i class="fas fa-book"></i> அனைத்து தலைப்புகள்
+        </h2>
+
+        <div id="topics-list">
+            <!-- Dynamically generated -->
+        </div>
+
+        <!-- How to Use -->
+        <section class="mobile-instructions">
+            <h2 class="section-header" style="grid-column: 1 / -1;">
+                <i class="fas fa-info-circle"></i> எப்படி பயன்படுத்துவது?
+            </h2>
+
+            <div class="instruction-item">
+                <div class="instruction-icon"><i class="fas fa-book"></i></div>
+                <h4>தலைப்பைத் தேர்ந்தெடு</h4>
+                <p>தலைப்பைத் தேர்ந்தெடுத்து பயிற்சி தொடங்குங்கள்</p>
+            </div>
+
+            <div class="instruction-item">
+                <div class="instruction-icon"><i class="fas fa-question"></i></div>
+                <h4>கேள்விகளுக்கு பதிலளி</h4>
+                <p>ஒவ்வொரு கேள்விக்கும் சரியான விடையைத் தேர்ந்தெடுக்கவும்</p>
+            </div>
+
+            <div class="instruction-item">
+                <div class="instruction-icon"><i class="fas fa-lightbulb"></i></div>
+                <h4>விளக்கம் பார்க்கவும்</h4>
+                <p>விடையின் விளக்கத்தைப் படித்து புரிந்துகொள்ளவும்</p>
+            </div>
+
+            <div class="instruction-item">
+                <div class="instruction-icon"><i class="fas fa-chart-line"></i></div>
+                <h4>முன்னேற்றத்தை பாருங்கள்</h4>
+                <p>உங்கள் முன்னேற்றத்தை கண்காணிக்கவும்</p>
+            </div>
+        </section>
+
+        <!-- Motivation -->
+        <div class="instruction-item" style="background:linear-gradient(135deg,rgba(134,252,187,0.08),rgba(3,218,198,0.04));border-color:rgba(134,252,187,0.25);">
+            <div class="instruction-icon"><i class="fas fa-lightbulb"></i></div>
+            <h4>நினைவில் கொள்ளுங்கள்</h4>
+            <p>ஆங்கில இலக்கணம் பயிற்சி மூலமே நிறையும். ஒவ்வொரு நாளும் சிறிது நேரம் ஒதுக்கி பயிற்சி செய்யுங்கள்!</p>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="mobile-footer">
+        <p>&copy; 2026 MK Education Centre</p>
+        <p>ஆங்கில இலக்கணம் — தமிழ் மாணவர்களுக்காக</p>
+    </footer>
+
+    <!-- Bottom Navigation -->
+    <nav class="mobile-nav">
+        <a href="#" class="active" id="navHome">
+            <i class="fas fa-home"></i>
+            முகப்பு
+        </a>
+        <a href="#topics" id="navTopics">
+            <i class="fas fa-book"></i>
+            தலைப்புகள்
+        </a>
+        <button onclick="resetAllProgressMobile()">
+            <i class="fas fa-redo"></i>
+            மீட்டமை
+        </button>
+    </nav>
+
+    <!-- Back to Top -->
+    <button id="mobileBackToTop" class="back-to-top" style="bottom:68px">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <script>
+        const mobileTopics = [
+            { key:'noun',               name:'Noun (பெயர்ச்சொல்)',           link:'Noun.html',                    count:120, icon:'file-signature' },
+            { key:'singular',           name:'Singular & Plural (ஒருமை/பன்மை)', link:'Singular_Plural.html',      count:51,  icon:'layer-group' },
+            { key:'adjective',          name:'Adjective (பெயரடை)',           link:'Adjective.html',               count:80,  icon:'palette' },
+            { key:'articles',           name:'Articles',                      link:'Articles.html',                count:70,  icon:'newspaper' },
+            { key:'degrees',            name:'Degrees of Comparison',         link:'Degrees_of_Comparison.html',   count:50,  icon:'sort-amount-up' },
+            { key:'pronoun',            name:'Pronoun (பிரதிபெயர்)',          link:'Pronoun.html',                 count:80,  icon:'user-friends' },
+            { key:'beverb',             name:'Be Verb (இருக்கும் வினை)',      link:'Be_Verb.html',                 count:120, icon:'file-signature' },
+            { key:'verb',               name:'Verb (வினைச்சொல்)',             link:'Verb.html',                    count:80,  icon:'running' },
+            { key:'adverb',             name:'Adverb (வினையெச்சம்)',          link:'Adverb.html',                  count:60,  icon:'tachometer-alt' },
+            { key:'tenses',             name:'Tenses (காலங்கள்)',             link:'Tenses.html',                  count:120, icon:'clock' },
+            { key:'preposition',        name:'Preposition (முன்னிடைச்சொல்)', link:'Preposition.html',             count:80,  icon:'map-marker-alt' },
+            { key:'conjunction',        name:'Conjunction (இணைப்புச்சொல்)', link:'Conjunction.html',              count:100, icon:'link' },
+            { key:'interjection',       name:'Interjection (வியப்புச்சொல்)', link:'Interjection.html',             count:80,  icon:'exclamation-triangle' },
+            { key:'directIndirectSpeech',name:'Direct & Indirect Speech',    link:'Direct_Indirect_Speech.html',   count:120, icon:'comments' },
+            { key:'voice',              name:'Active & Passive Voice',        link:'Active_Voice_Passive_Voice.html',count:50, icon:'exchange-alt' },
+            { key:'sentences',          name:'Types of Sentences',            link:'Types_of_Sentences.html',      count:80,  icon:'align-left' }
+        ];
+
+        function updateHeaderStats() {
+            let totalAnswered = 0, totalQuestions = 0;
+            mobileTopics.forEach(t => {
+                totalQuestions += t.count;
+                try {
+                    const saved = localStorage.getItem(`progress-${t.key}`);
+                    if (saved) totalAnswered += (JSON.parse(saved).answered || 0);
+                } catch(e) {}
+            });
+            const pct = totalQuestions > 0 ? Math.round(totalAnswered / totalQuestions * 100) : 0;
+            const el = document.getElementById('overall-progress');
+            if (el) el.textContent = pct + '%';
+        }
+
+        function generateMobileTopics() {
+            const container = document.getElementById('topics-list');
+            if (!container) return;
+            container.innerHTML = '';
+
+            mobileTopics.forEach(topic => {
+                let answered = 0;
+                try {
+                    const saved = localStorage.getItem(`progress-${topic.key}`);
+                    if (saved) answered = JSON.parse(saved).answered || 0;
+                } catch(e) {}
+
+                const pct = topic.count > 0 ? Math.round(answered / topic.count * 100) : 0;
+                const borderColor = pct === 100 ? '#2ecc71' : pct > 0 ? '#03dac6' : '#86fcbb';
+
+                const card = document.createElement('a');
+                card.href = topic.link;
+                card.className = 'topic-card-mobile';
+                card.style.borderLeftColor = borderColor;
+
+                card.innerHTML = `
+                    <div class="topic-header-mobile">
+                        <div class="topic-icon-mobile">
+                            <i class="fas fa-${topic.icon}"></i>
+                        </div>
+                        <div class="topic-info-mobile">
+                            <h3>${topic.name}</h3>
+                            <p>${topic.count} கேள்விகள்</p>
+                        </div>
+                    </div>
+                    <div class="progress-mobile">
+                        <div class="progress-bar-mobile">
+                            <div class="progress-fill-mobile" style="width:${pct}%"></div>
+                        </div>
+                        <div class="progress-text-mobile">
+                            <span>முன்னேற்றம்</span>
+                            <span>${pct}%</span>
+                        </div>
+                    </div>
+                `;
+
+                container.appendChild(card);
+            });
+
+            updateHeaderStats();
+        }
+
+        function showRandomTopic() {
+            const r = mobileTopics[Math.floor(Math.random() * mobileTopics.length)];
+            showNotif(`🎲 ${r.name} தலைப்புக்கு செல்லுகிறது...`);
+            setTimeout(() => { window.location.href = r.link; }, 900);
+        }
+
+        function resetAllProgressMobile() {
+            if (confirm('உறுதியாக அனைத்து தரவையும் நீக்க விரும்புகிறீர்களா?')) {
+                mobileTopics.forEach(t => { try { localStorage.removeItem(`progress-${t.key}`); } catch(e){} });
+                generateMobileTopics();
+                showNotif('அனைத்து தரவும் நீக்கப்பட்டது!');
+            }
+        }
+
+        function showNotif(msg) {
+            const n = document.createElement('div');
+            n.textContent = msg;
+            n.style.cssText = `
+                position:fixed; top:12px; left:12px; right:12px;
+                background:var(--accent); color:#111;
+                padding:12px 16px; border-radius:10px;
+                text-align:center; font-weight:700;
+                z-index:1100; font-size:0.88rem;
+                box-shadow:0 4px 16px rgba(0,0,0,0.3);
+                animation:slideDown 0.3s ease;
+            `;
+            document.body.appendChild(n);
+            setTimeout(() => n.remove(), 2200);
+        }
+
+        /* Back to top */
+        const btt = document.getElementById('mobileBackToTop');
+        window.addEventListener('scroll', () => {
+            btt.classList.toggle('show', window.scrollY > 200);
+        });
+        btt.addEventListener('click', () => window.scrollTo({ top:0, behavior:'smooth' }));
+
+        /* Mobile nav active state */
+        document.querySelectorAll('.mobile-nav a').forEach(a => {
+            a.addEventListener('click', function() {
+                document.querySelectorAll('.mobile-nav a').forEach(x => x.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        /* Touch feedback on cards */
+        document.addEventListener('touchstart', e => {
+            if (e.target.closest('.topic-card-mobile')) {
+                e.target.closest('.topic-card-mobile').style.opacity = '0.85';
+            }
+        }, { passive: true });
+        document.addEventListener('touchend', e => {
+            if (e.target.closest('.topic-card-mobile')) {
+                e.target.closest('.topic-card-mobile').style.opacity = '';
+            }
+        }, { passive: true });
+
+        /* Init */
+        document.addEventListener('DOMContentLoaded', () => {
+            generateMobileTopics();
+            updateHeaderStats();
+        });
+
+        window.updateProgress = generateMobileTopics;
+    </script>
+</body>
+</html>

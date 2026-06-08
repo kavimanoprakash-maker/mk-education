@@ -1,0 +1,1374 @@
+<!DOCTYPE html>
+<html lang="ta">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MK Education Centre - Quiz</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface2: #21262d;
+    --border: #30363d;
+    --gold: #f0c040;
+    --teal: #39d0c8;
+    --text: #e6edf3;
+    --muted: #8b949e;
+    --correct: #3fb950;
+    --wrong: #f85149;
+    --nav-h: 60px;
+  }
+  .light {
+    --bg: #f4f6f9;
+    --surface: #ffffff;
+    --surface2: #eef1f5;
+    --border: #d0d7de;
+    --text: #1c2128;
+    --muted: #57606a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    transition: background 0.3s, color 0.3s;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    height: var(--nav-h);
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 20px;
+    z-index: 1000;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+  }
+  .nav-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    font-weight: 900;
+    color: var(--gold);
+    letter-spacing: 0.5px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .nav-title span.dot { color: var(--teal); font-size: 1.4rem; line-height: 1; }
+
+  .menu-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    display: flex; align-items: center;
+    transition: background 0.2s;
+    position: relative;
+  }
+  .menu-btn:hover { background: var(--border); }
+  .hamburger { font-size: 1.1rem; }
+
+  .dropdown {
+    position: absolute; top: calc(100% + 8px); right: 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    min-width: 210px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    display: none;
+    overflow: hidden;
+    z-index: 2000;
+  }
+  .dropdown.open { display: block; animation: fadeDown 0.15s ease; }
+  @keyframes fadeDown { from { opacity:0; transform: translateY(-6px); } to { opacity:1; transform: translateY(0); } }
+
+  .dd-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 16px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+    font-size: 0.88rem;
+    font-weight: 500;
+  }
+  .dd-item:last-child { border-bottom: none; }
+  .dd-item:hover { background: var(--surface2); }
+  .dd-item .dd-label { display: flex; align-items: center; gap: 8px; }
+  .dd-item .icon { font-size: 1rem; }
+
+  .toggle-switch {
+    width: 36px; height: 20px;
+    background: var(--border);
+    border-radius: 10px;
+    position: relative;
+    transition: background 0.2s;
+    flex-shrink: 0;
+  }
+  .toggle-switch.on { background: var(--teal); }
+  .toggle-switch::after {
+    content: '';
+    position: absolute;
+    width: 14px; height: 14px;
+    background: white;
+    border-radius: 50%;
+    top: 3px; left: 3px;
+    transition: transform 0.2s;
+  }
+  .toggle-switch.on::after { transform: translateX(16px); }
+
+  /* MAIN */
+  main {
+    padding-top: calc(var(--nav-h) + 30px);
+    max-width: 720px;
+    margin: 0 auto;
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-bottom: 60px;
+  }
+
+
+  /* PROGRESS */
+  .progress-bar-wrap {
+    background: var(--surface2);
+    border-radius: 99px;
+    height: 6px;
+    margin-bottom: 28px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--teal), var(--gold));
+    border-radius: 99px;
+    transition: width 0.4s ease;
+  }
+  .progress-text {
+    display: flex; justify-content: space-between;
+    font-size: 0.8rem; color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  /* QUESTION CARD */
+  .question-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    margin-bottom: 20px;
+    animation: slideUp 0.3s ease;
+  }
+  @keyframes slideUp { from { opacity:0; transform: translateY(16px); } to { opacity:1; transform: translateY(0); } }
+
+  .q-number {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: var(--teal);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .q-text {
+    font-size: 1.12rem;
+    font-weight: 600;
+    line-height: 1.6;
+    color: var(--text);
+    margin-bottom: 22px;
+  }
+
+  /* OPTIONS */
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option-btn {
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    color: var(--text);
+    padding: 13px 18px;
+    border-radius: 10px;
+    text-align: left;
+    cursor: pointer;
+    font-size: 0.92rem;
+    font-weight: 500;
+    display: flex; align-items: center; gap: 12px;
+    transition: border-color 0.15s, background 0.15s, transform 0.1s;
+    position: relative;
+    overflow: hidden;
+  }
+  .option-btn:hover:not(:disabled) {
+    border-color: var(--teal);
+    transform: translateX(3px);
+  }
+  .option-btn:disabled { cursor: default; }
+  .option-btn.correct {
+    border-color: var(--correct);
+    background: rgba(63, 185, 80, 0.12);
+  }
+  .option-btn.wrong {
+    border-color: var(--wrong);
+    background: rgba(248, 81, 73, 0.12);
+  }
+  .option-btn .opt-label {
+    width: 26px; height: 26px;
+    border-radius: 6px;
+    background: var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700;
+    font-size: 0.78rem;
+    flex-shrink: 0;
+    transition: background 0.15s;
+  }
+  .option-btn.correct .opt-label { background: var(--correct); color: white; }
+  .option-btn.wrong .opt-label { background: var(--wrong); color: white; }
+  .opt-icon { margin-left: auto; font-size: 1rem; }
+
+  /* NEXT BUTTON */
+  .next-btn {
+    width: 100%;
+    margin-top: 20px;
+    padding: 14px;
+    background: linear-gradient(135deg, var(--teal), #2ab8b0);
+    color: #0d1117;
+    border: none;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    display: none;
+    transition: opacity 0.2s, transform 0.1s;
+  }
+  .next-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+  .next-btn.visible { display: block; animation: fadeIn 0.2s ease; }
+  @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+
+  /* EXPLANATION */
+  .explanation {
+    background: var(--surface2);
+    border-left: 3px solid var(--gold);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 14px;
+    margin-top: 16px;
+    font-size: 0.85rem;
+    color: var(--muted);
+    display: none;
+  }
+  .explanation.show { display: block; animation: fadeIn 0.2s ease; }
+
+  /* REPORT */
+  #report-section { display: none; }
+  #report-section.show { display: block; animation: slideUp 0.4s ease; }
+
+  .report-header {
+    text-align: center;
+    margin-bottom: 30px;
+  }
+  .report-header h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    color: var(--gold);
+    margin-bottom: 6px;
+  }
+
+  .score-circle {
+    width: 120px; height: 120px;
+    border-radius: 50%;
+    background: conic-gradient(var(--teal) 0deg, var(--surface2) 0);
+    display: flex; align-items: center; justify-content: center;
+    margin: 20px auto;
+    position: relative;
+  }
+  .score-circle::before {
+    content: '';
+    width: 94px; height: 94px;
+    background: var(--bg);
+    border-radius: 50%;
+    position: absolute;
+  }
+  .score-circle .score-val {
+    position: relative; z-index: 1;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    font-weight: 900;
+    color: var(--teal);
+  }
+
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+  }
+  .stat-card .s-val {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+  }
+  .stat-card .s-label { font-size: 0.75rem; color: var(--muted); margin-top: 4px; }
+  .stat-card.correct .s-val { color: var(--correct); }
+  .stat-card.wrong .s-val { color: var(--wrong); }
+  .stat-card.total .s-val { color: var(--gold); }
+
+  /* RESULT LOG */
+  .result-log-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .result-log-header h3 {
+    font-size: 1rem; font-weight: 700; color: var(--text);
+  }
+  .clear-log-btn {
+    background: transparent;
+    border: 1px solid var(--wrong);
+    color: var(--wrong);
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .clear-log-btn:hover { background: rgba(248,81,73,0.1); }
+
+  .result-log {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .log-row {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.85rem;
+    transition: background 0.15s;
+  }
+  .log-row:last-child { border-bottom: none; }
+  .log-row:hover { background: var(--surface2); }
+  .log-row .lr-num {
+    width: 26px; height: 26px; border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 0.78rem; flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .log-row.lr-correct .lr-num { background: rgba(63,185,80,0.18); color: var(--correct); }
+  .log-row.lr-wrong .lr-num { background: rgba(248,81,73,0.18); color: var(--wrong); }
+  .log-row .lr-q { color: var(--text); font-weight: 500; margin-bottom: 4px; line-height: 1.4; }
+  .log-row .lr-ans { color: var(--muted); font-size: 0.82rem; }
+  .log-row .lr-ans .ans-given { color: var(--wrong); font-weight: 600; }
+  .log-row .lr-ans .ans-correct { color: var(--correct); font-weight: 600; }
+  .log-row.lr-correct .lr-ans .ans-given { color: var(--correct); }
+
+  /* RESTART */
+  .restart-btn {
+    width: 100%; margin-top: 24px; padding: 14px;
+    background: linear-gradient(135deg, var(--gold), #e0a820);
+    color: #0d1117; border: none; border-radius: 10px;
+    font-weight: 700; font-size: 0.95rem; cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  .restart-btn:hover { opacity: 0.88; }
+
+  /* WhatsApp */
+  .whatsapp-btn {
+    width: 100%; margin-top: 14px; padding: 14px;
+    background: #25D366;
+    color: #fff; border: none; border-radius: 10px;
+    font-weight: 700; font-size: 0.95rem; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    transition: opacity 0.2s, transform 0.1s;
+  }
+  .whatsapp-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+
+  /* No results */
+  .no-results {
+    text-align: center; padding: 30px; color: var(--muted);
+  }
+
+  /* Saved Report Card */
+  .saved-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 12px;
+    overflow: hidden;
+  }
+  .saved-card-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .saved-card-header:hover { background: var(--surface2); }
+  .saved-card-meta { font-size: 0.82rem; color: var(--muted); margin-top: 3px; }
+  .saved-card-score { font-family: 'Playfair Display',serif; font-size: 1.3rem; font-weight:700; color: var(--teal); }
+  .saved-card-body { border-top: 1px solid var(--border); overflow:hidden; transition: max-height 0.35s ease; }
+  .saved-del-btn {
+    background: transparent; border: 1px solid var(--wrong);
+    color: var(--wrong); padding: 4px 10px; border-radius:6px;
+    font-size:0.75rem; font-weight:600; cursor:pointer; flex-shrink:0; margin-left:10px;
+  }
+
+  /* TOAST */
+  .toast {
+    position: fixed; bottom: 24px; right: 24px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 18px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    z-index: 9999;
+    display: none;
+    animation: fadeIn 0.2s ease;
+  }
+  .toast.show { display: block; }
+
+  /* Student Info Modal */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.7);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 9998;
+    padding: 20px;
+    backdrop-filter: blur(4px);
+  }
+  .modal-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 32px 28px;
+    width: 100%; max-width: 420px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    animation: slideUp 0.3s ease;
+  }
+  .modal-box h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem; color: var(--gold);
+    margin-bottom: 6px; text-align: center;
+  }
+  .modal-box p {
+    color: var(--muted); font-size: 0.85rem;
+    text-align: center; margin-bottom: 22px;
+  }
+  .field-group { margin-bottom: 14px; }
+  .field-group label {
+    display: block; font-size: 0.8rem; font-weight: 700;
+    color: var(--muted); margin-bottom: 5px; letter-spacing: 0.5px;
+  }
+  .field-group input, .field-group select {
+    width: 100%; padding: 11px 14px;
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    border-radius: 8px; color: var(--text);
+    font-size: 0.92rem; font-family: 'DM Sans', sans-serif;
+    outline: none; transition: border-color 0.2s;
+  }
+  .field-group input:focus, .field-group select:focus {
+    border-color: var(--teal);
+  }
+  .field-group select option { background: var(--surface); }
+  .modal-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .modal-start-btn {
+    width: 100%; margin-top: 20px; padding: 13px;
+    background: linear-gradient(135deg, var(--teal), #2ab8b0);
+    color: #0d1117; border: none; border-radius: 10px;
+    font-weight: 700; font-size: 0.97rem; cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  .modal-start-btn:hover { opacity: 0.9; }
+
+  /* Student tag in report */
+  .student-tag {
+    text-align: center;
+    font-size: 1rem; font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+    letter-spacing: 0.3px;
+  }
+
+  @media (max-width: 480px) {
+    .stats-row { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .stat-card { padding: 12px 8px; }
+    .stat-card .s-val { font-size: 1.3rem; }
+    .q-text { font-size: 1rem; }
+    main { padding-left: 14px; padding-right: 14px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Student Info Modal -->
+<div class="modal-overlay" id="studentModal">
+  <div class="modal-box">
+    <h2>🎓 MK Education Centre</h2>
+    <p>Quiz தொடங்குவதற்கு முன் உங்கள் விவரங்களை பதிவு செய்யவும்</p>
+    <div class="field-group">
+      <label>வரிசை எண்</label>
+      <input type="number" id="s_roll" placeholder="உ.ம்: 1" min="0">
+    </div>
+    <div class="field-group">
+      <label>பெயர்</label>
+      <input type="text" id="s_name" placeholder="உங்கள் பெயர்">
+    </div>
+    <div class="modal-row">
+      <div class="field-group">
+        <label>வகுப்பு</label>
+        <select id="s_class">
+          <option value="">தேர்வு செய்</option>
+          <option>1st</option><option>2nd</option><option>3rd</option>
+          <option>4th</option><option>5th</option><option>6th</option>
+          <option>7th</option><option>8th</option><option>9th</option>
+          <option>10th</option><option>11th</option><option>12th</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label>பிரிவு</label>
+        <select id="s_section">
+          <option value="">தேர்வு செய்</option>
+          <option>A</option><option>B</option><option>C</option>
+          <option>D</option><option>E</option><option>F</option><option>G</option><option>H</option>
+        </select>
+      </div>
+    </div>
+    <button class="modal-start-btn" onclick="startWithInfo()">Quiz தொடங்கு →</button>
+  </div>
+</div>
+
+<nav>
+  <div class="nav-title">
+    <span class="dot">🎓</span>
+    MK Education Centre
+  </div>
+  <div class="menu-btn" id="menuBtn" onclick="toggleMenu()">
+    ☰
+    <div class="dropdown" id="dropdown">
+      <div class="dd-item" onclick="toggleShuffle(event)">
+        <span class="dd-label"><span class="icon">🔀</span> Question Shuffle</span>
+        <div class="toggle-switch" id="shuffleToggle"></div>
+      </div>
+      <div class="dd-item" onclick="toggleTheme(event)">
+        <span class="dd-label"><span class="icon">🌓</span> Light Theme</span>
+        <div class="toggle-switch" id="themeToggle"></div>
+      </div>
+      <div class="dd-item" onclick="toggleAutoNext(event)">
+        <span class="dd-label"><span class="icon">⚡</span> Auto Next (2s)</span>
+        <div class="toggle-switch" id="autoNextToggle"></div>
+      </div>
+      <div class="dd-item" onclick="goToReports(event)">
+        <span class="dd-label"><span class="icon">📂</span> சேமித்த அறிக்கைகள்</span>
+        <span style="color:var(--teal);font-size:0.8rem;" id="savedCount">0</span>
+      </div>
+      <div class="dd-item" onclick="toggleSave(event)">
+        <span class="dd-label"><span class="icon">💾</span> Auto Save</span>
+        <div class="toggle-switch" id="saveToggle"></div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<main>
+  <!-- Quiz Section -->
+  <div id="quiz-section">
+    
+    <div class="progress-text">
+      <span id="prog-label">கேள்வி 1 / 10</span>
+      <span id="prog-score">மதிப்பெண்: 0</span>
+    </div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" id="progressBar" style="width:0%"></div>
+    </div>
+    <div id="question-area"></div>
+  </div>
+
+  <!-- Report Section -->
+  <div id="report-section">
+    <div class="report-header">
+      <h2>📊 முழு அறிக்கை</h2>
+      <p id="studentTag" class="student-tag"></p>
+      <p id="quizDateTime" style="color:var(--teal); font-size:0.85rem; margin-top:4px; font-weight:600;"></p>
+      <p id="quizDuration" style="color:var(--gold); font-size:0.85rem; margin-top:3px; font-weight:600;"></p>
+    </div>
+    <div class="score-circle" id="scoreCircle">
+      <div class="score-val" id="scoreVal">0%</div>
+    </div>
+    <div class="stats-row">
+      <div class="stat-card total">
+        <div class="s-val" id="totalCount">0</div>
+        <div class="s-label">மொத்தம்</div>
+      </div>
+      <div class="stat-card correct">
+        <div class="s-val" id="correctCount">0</div>
+        <div class="s-label">சரி ✓</div>
+      </div>
+      <div class="stat-card wrong">
+        <div class="s-val" id="wrongCount">0</div>
+        <div class="s-label">தவறு ✗</div>
+      </div>
+    </div>
+    <div class="result-log-header" onclick="toggleLog()" style="cursor:pointer;">
+      <h3>📋 விடை பதிவு <span id="logArrow" style="font-size:0.85rem; color:var(--teal); margin-left:6px;">▲</span></h3>
+      <button class="clear-log-btn" onclick="clearLog(event)">🗑️ பதிவை அழி</button>
+    </div>
+    <div id="logCollapse" style="overflow:hidden; transition: max-height 0.35s ease;">
+      <div class="result-log" id="resultLog"></div>
+    </div>
+    <button class="whatsapp-btn" onclick="shareWhatsApp()">📲 WhatsApp இல் பகிர்</button>
+    <button class="restart-btn" onclick="restartQuiz()">🔄 மீண்டும் தொடங்கு</button>
+  </div>
+
+  <!-- Saved Reports Section -->
+  <div id="saved-section" style="display:none;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
+      <h2 style="font-family:'Playfair Display',serif;font-size:1.5rem;color:var(--gold);">📂 சேமித்த அறிக்கைகள்</h2>
+      <button onclick="clearAllSaved()" style="background:transparent;border:1px solid var(--wrong);color:var(--wrong);padding:6px 12px;border-radius:6px;font-size:0.8rem;font-weight:600;cursor:pointer;">🗑️ அனைத்தையும் அழி</button>
+    </div>
+    <div id="savedList"></div>
+    <button onclick="backFromReports()" style="width:100%;margin-top:20px;padding:13px;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:10px;font-weight:700;font-size:0.92rem;cursor:pointer;">← திரும்பு</button>
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+<script>
+const QUESTIONS = [
+    { id:1,   q:"'அன்பு' என்பதன் ஆங்கில வார்த்தை எது?",                   opts:["Hate","Fear","Love","Joy"],                       ans:2, exp: "explain" },
+    { id:2,   q:"'வெறுப்பு' என்பதன் ஆங்கில வார்த்தை எது?",                opts:["Love","Hate","Anger","Envy"],                     ans:1 },
+    { id:3,   q:"'மகிழ்ச்சி' என்பதன் ஆங்கில வார்த்தை எது?",              opts:["Sadness","Anger","Happiness","Fear"],             ans:2 },
+    { id:4,   q:"'சோகம்' என்பதன் ஆங்கில வார்த்தை எது?",                   opts:["Joy","Sadness","Peace","Hope"],                   ans:1 },
+    { id:5,   q:"'கோபம்' என்பதன் ஆங்கில வார்த்தை எது?",                   opts:["Fear","Love","Anger","Calm"],                     ans:2 },
+    { id:6,   q:"'பயம்' என்பதன் ஆங்கில வார்த்தை எது?",                    opts:["Fear","Joy","Hope","Pride"],                      ans:0 },
+    { id:7,   q:"'தைரியம்' என்பதன் ஆங்கில வார்த்தை எது?",                 opts:["Fear","Weakness","Courage","Sadness"],            ans:2 },
+    { id:8,   q:"'வீரம்' என்பதன் ஆங்கில வார்த்தை எது?",                   opts:["Cowardice","Bravery","Laziness","Anger"],         ans:1 },
+    { id:9,   q:"'தயவு / கருணை' என்பதன் ஆங்கில வார்த்தை எது?",            opts:["Cruelty","Anger","Kindness","Jealousy"],          ans:2 },
+    { id:10,  q:"'கொடுமை' என்பதன் ஆங்கில வார்த்தை எது?",                  opts:["Kindness","Cruelty","Mercy","Love"],              ans:1 },
+    { id:11,  q:"'நேர்மை' என்பதன் ஆங்கில வார்த்தை எது?",                  opts:["Dishonesty","Lie","Honesty","Deceit"],            ans:2 },
+    { id:12,  q:"'நேர்மையின்மை' என்பதன் ஆங்கில வார்த்தை எது?",            opts:["Honesty","Dishonesty","Truth","Integrity"],       ans:1 },
+    { id:13,  q:"'உண்மை' என்பதன் ஆங்கில வார்த்தை எது?",                   opts:["Lie","Deceit","Truth","Illusion"],                ans:2 },
+    { id:14,  q:"'பொய்' என்பதன் ஆங்கில வார்த்தை எது?",                    opts:["Truth","Lie","Honesty","Clarity"],                ans:1 },
+    { id:15,  q:"'அமைதி' என்பதன் ஆங்கில வார்த்தை எது?",                   opts:["War","Anger","Peace","Chaos"],                    ans:2 },
+    { id:16,  q:"'போர்' என்பதன் ஆங்கில வார்த்தை எது?",                    opts:["Peace","Freedom","War","Justice"],                ans:2 },
+    { id:17,  q:"'சுதந்திரம்' என்பதன் ஆங்கில வார்த்தை எது?",              opts:["Slavery","Freedom","Equality","Unity"],           ans:1 },
+    { id:18,  q:"'அடிமைத்தனம்' என்பதன் ஆங்கில வார்த்தை எது?",             opts:["Freedom","Justice","Slavery","Equality"],         ans:2 },
+    { id:19,  q:"'நீதி' என்பதன் ஆங்கில வார்த்தை எது?",                    opts:["Injustice","Justice","War","Anger"],              ans:1 },
+    { id:20,  q:"'அநீதி' என்பதன் ஆங்கில வார்த்தை எது?",                   opts:["Justice","Peace","Injustice","Freedom"],          ans:2 },
+    { id:21,  q:"'பொறுமை' என்பதன் ஆங்கில வார்த்தை எது?",                  opts:["Anger","Impatience","Patience","Stress"],         ans:2 },
+    { id:22,  q:"'பொறுமையின்மை' என்பதன் ஆங்கில வார்த்தை எது?",            opts:["Patience","Impatience","Calm","Hope"],            ans:1 },
+    { id:23,  q:"'பெருமை' என்பதன் ஆங்கில வார்த்தை எது?",                  opts:["Humility","Shame","Pride","Sadness"],             ans:2 },
+    { id:24,  q:"'தாழ்மை' என்பதன் ஆங்கில வார்த்தை எது?",                  opts:["Pride","Humility","Arrogance","Ego"],             ans:1 },
+    { id:25,  q:"'அறிவு' என்பதன் ஆங்கில வார்த்தை எது?",                   opts:["Ignorance","Stupidity","Knowledge","Laziness"],   ans:2 },
+    { id:26,  q:"'ஞானம்' என்பதன் ஆங்கில வார்த்தை எது?",                   opts:["Ignorance","Folly","Wisdom","Fear"],              ans:2 },
+    { id:27,  q:"'அறியாமை' என்பதன் ஆங்கில வார்த்தை எது?",                 opts:["Wisdom","Knowledge","Ignorance","Truth"],         ans:2 },
+    { id:28,  q:"'அழகு' என்பதன் ஆங்கில வார்த்தை எது?",                    opts:["Ugliness","Beauty","Charm","Darkness"],           ans:1 },
+    { id:29,  q:"'அசிங்கம்' என்பதன் ஆங்கில வார்த்தை எது?",                opts:["Beauty","Charm","Ugliness","Clarity"],            ans:2 },
+    { id:30,  q:"'பலம்' என்பதன் ஆங்கில வார்த்தை எது?",                    opts:["Weakness","Strength","Fear","Laziness"],          ans:1 },
+    { id:31,  q:"'பலவீனம்' என்பதன் ஆங்கில வார்த்தை எது?",                 opts:["Strength","Power","Weakness","Courage"],          ans:2 },
+    { id:32,  q:"'ஆரோக்கியம்' என்பதன் ஆங்கில வார்த்தை எது?",              opts:["Illness","Health","Pain","Weakness"],             ans:1 },
+    { id:33,  q:"'நோய்' என்பதன் ஆங்கில வார்த்தை எது?",                    opts:["Health","Strength","Illness","Energy"],           ans:2 },
+    { id:34,  q:"'செல்வம்' என்பதன் ஆங்கில வார்த்தை எது?",                 opts:["Poverty","Wealth","Luck","Luxury"],               ans:1 },
+    { id:35,  q:"'வறுமை' என்பதன் ஆங்கில வார்த்தை எது?",                   opts:["Wealth","Luxury","Poverty","Greed"],              ans:2 },
+    { id:36,  q:"'வெற்றி' என்பதன் ஆங்கில வார்த்தை எது?",                  opts:["Failure","Success","Defeat","Despair"],           ans:1 },
+    { id:37,  q:"'தோல்வி' என்பதன் ஆங்கில வார்த்தை எது?",                  opts:["Success","Victory","Failure","Hope"],             ans:2 },
+    { id:38,  q:"'நம்பிக்கை' என்பதன் ஆங்கில வார்த்தை எது?",               opts:["Despair","Hope","Fear","Sadness"],                ans:1 },
+    { id:39,  q:"'நம்பிக்கையின்மை' என்பதன் ஆங்கில வார்த்தை எது?",         opts:["Hope","Trust","Despair","Faith"],                 ans:2 },
+    { id:40,  q:"'பக்தி' என்பதன் ஆங்கில வார்த்தை எது?",                   opts:["Doubt","Anger","Faith","Jealousy"],               ans:2 },
+    { id:41,  q:"'நம்பிக்கை' என்பதன் ஆங்கில வார்த்தை எது?",       opts:["Betrayal","Doubt","Trust","Fear"],                ans:2 },
+    { id:42,  q:"'விசுவாசம்' என்பதன் ஆங்கில வார்த்தை எது?",               opts:["Betrayal","Loyalty","Hatred","Envy"],             ans:1 },
+    { id:43,  q:"'துரோகம்' என்பதன் ஆங்கில வார்த்தை எது?",                 opts:["Loyalty","Friendship","Betrayal","Trust"],        ans:2 },
+    { id:44,  q:"'மரியாதை' என்பதன் ஆங்கில வார்த்தை எது?",                 opts:["Disrespect","Respect","Hatred","Anger"],          ans:1 },
+    { id:45,  q:"'அவமரியாதை' என்பதன் ஆங்கில வார்த்தை எது?",               opts:["Respect","Honour","Disrespect","Dignity"],        ans:2 },
+    { id:46,  q:"'நட்பு' என்பதன் ஆங்கில வார்த்தை எது?",                   opts:["Enmity","Friendship","Hatred","Betrayal"],        ans:1 },
+    { id:47,  q:"'பகை' என்பதன் ஆங்கில வார்த்தை எது?",                     opts:["Friendship","Love","Enmity","Peace"],             ans:2 },
+    { id:48,  q:"'மகிழ்ச்சி' என்பதன் ஆங்கில வார்த்தை எது?",         opts:["Sorrow","Pain","Joy","Anger"],                    ans:2 },
+    { id:49,  q:"'துன்பம்' என்பதன் ஆங்கில வார்த்தை எது?",                 opts:["Joy","Sorrow","Peace","Happiness"],               ans:1 },
+    { id:50,  q:"'இன்பம்' என்பதன் ஆங்கில வார்த்தை எது?",                  opts:["Pain","Sorrow","Pleasure","Anger"],               ans:2 },
+    { id:51,  q:"'வலி' என்பதன் ஆங்கில வார்த்தை எது?",                     opts:["Pleasure","Pain","Joy","Peace"],                  ans:1 },
+    { id:52,  q:"'உற்சாகம்' என்பதன் ஆங்கில வார்த்தை எது?",                opts:["Boredom","Excitement","Sadness","Fear"],          ans:1 },
+    { id:53,  q:"'சலிப்பு' என்பதன் ஆங்கில வார்த்தை எது?",                 opts:["Excitement","Joy","Boredom","Pleasure"],          ans:2 },
+    { id:54,  q:"'ஆர்வம்' என்பதன் ஆங்கில வார்த்தை எது?",                  opts:["Boredom","Interest","Laziness","Sadness"],        ans:1 },
+    { id:55,  q:"'குழப்பம்' என்பதன் ஆங்கில வார்த்தை எது?",                opts:["Clarity","Confusion","Peace","Order"],            ans:1 },
+    { id:56,  q:"'தெளிவு' என்பதன் ஆங்கில வார்த்தை எது?",                  opts:["Confusion","Chaos","Clarity","Doubt"],            ans:2 },
+    { id:57,  q:"'அமைதி' என்பதன் ஆங்கில வார்த்தை எது?",        opts:["Anger","Stress","Calmness","Fear"],               ans:2 },
+    { id:58,  q:"'கவலை' என்பதன் ஆங்கில வார்த்தை எது?",          opts:["Joy","Peace","Anxiety","Trust"],                  ans:2 },
+    { id:59,  q:"'மன அழுத்தம்' என்பதன் ஆங்கில வார்த்தை எது?",             opts:["Peace","Happiness","Stress","Relief"],            ans:2 },
+    { id:60,  q:"'நிவாரணம்' என்பதன் ஆங்கில வார்த்தை எது?",                opts:["Stress","Pain","Relief","Anxiety"],               ans:2 },
+    { id:61,  q:"'ஆச்சரியம்' என்பதன் ஆங்கில வார்த்தை எது?",               opts:["Boredom","Surprise","Fear","Sadness"],            ans:1 },
+    { id:62,  q:"'அதிர்ச்சி' என்பதன் ஆங்கில வார்த்தை எது?",               opts:["Joy","Relief","Shock","Peace"],                   ans:2 },
+    { id:63,  q:"'பொறாமை' என்பதன் ஆங்கில வார்த்தை எது?",       opts:["Love","Jealousy","Kindness","Gratitude"],         ans:1 },
+    { id:64,  q:"'பொறாமை' என்பதன் ஆங்கில வார்த்தை எது?",           opts:["Joy","Envy","Charity","Hope"],                    ans:1 },
+    { id:65,  q:"'பேராசை' என்பதன் ஆங்கில வார்த்தை எது?",                  opts:["Generosity","Charity","Greed","Kindness"],        ans:2 },
+    { id:66,  q:"'தாராளம்' என்பதன் ஆங்கில வார்த்தை எது?",                 opts:["Greed","Selfishness","Generosity","Cruelty"],     ans:2 },
+    { id:67,  q:"'சுயநலம்' என்பதன் ஆங்கில வார்த்தை எது?",                 opts:["Generosity","Selfishness","Kindness","Sacrifice"],ans:1 },
+    { id:68,  q:"'தியாகம்' என்பதன் ஆங்கில வார்த்தை எது?",                 opts:["Selfishness","Greed","Sacrifice","Envy"],         ans:2 },
+    { id:69,  q:"'இரக்கம்' என்பதன் ஆங்கில வார்த்தை எது?",                 opts:["Cruelty","Mercy","Anger","Hatred"],               ans:1 },
+    { id:70,  q:"'மன்னிப்பு' என்பதன் ஆங்கில வார்த்தை எது?",               opts:["Revenge","Anger","Forgiveness","Hatred"],         ans:2 },
+    { id:71,  q:"'நன்றியுணர்வு' என்பதன் ஆங்கில வார்த்தை எது?",            opts:["Anger","Ingratitude","Gratitude","Envy"],         ans:2 },
+    { id:72,  q:"'குழந்தைப் பருவம்' என்பதன் ஆங்கில வார்த்தை எது?",        opts:["Youth","Adulthood","Childhood","Old age"],        ans:2 },
+    { id:73,  q:"'இளமை' என்பதன் ஆங்கில வார்த்தை எது?",                    opts:["Childhood","Youth","Adulthood","Old age"],        ans:1 },
+    { id:74,  q:"'வயது முதிர்ச்சி' என்பதன் ஆங்கில வார்த்தை எது?",         opts:["Childhood","Youth","Adulthood","Birth"],          ans:2 },
+    { id:75,  q:"'முதுமை' என்பதன் ஆங்கில வார்த்தை எது?",                  opts:["Youth","Birth","Old age","Life"],                 ans:2 },
+    { id:76,  q:"'பிறப்பு' என்பதன் ஆங்கில வார்த்தை எது?",                 opts:["Death","Birth","Life","Time"],                    ans:1 },
+    { id:77,  q:"'மரணம்' என்பதன் ஆங்கில வார்த்தை எது?",                   opts:["Birth","Life","Death","Youth"],                   ans:2 },
+    { id:78,  q:"'வாழ்க்கை' என்பதன் ஆங்கில வார்த்தை எது?",                opts:["Death","Time","Life","Age"],                      ans:2 },
+    { id:79,  q:"'நேரம்' என்பதன் ஆங்கில வார்த்தை எது?",                   opts:["Life","Age","Time","Speed"],                      ans:2 },
+    { id:80,  q:"'கவனிப்பு' என்பதன் ஆங்கில வார்த்தை எது?",                opts:["Neglect","Care","Anger","Sadness"],               ans:1 },
+    { id:81,  q:"'கனவு' என்பதன் ஆங்கில வார்த்தை எது?",                    opts:["Reality","Sleep","Dream","Memory"],               ans:2 },
+    { id:82,  q:"'எண்ணம்' என்பதன் ஆங்கில வார்த்தை எது?",                  opts:["Dream","Memory","Thought","Imagination"],         ans:2 },
+    { id:83,  q:"'நினைவு' என்பதன் ஆங்கில வார்த்தை எது?",                  opts:["Dream","Memory","Thought","Ignorance"],           ans:1 },
+    { id:84,  q:"'கற்பனை' என்பதன் ஆங்கில வார்த்தை எது?",                  opts:["Reality","Memory","Imagination","Truth"],         ans:2 },
+    { id:85,  q:"'படைப்பாற்றல்' என்பதன் ஆங்கில வார்த்தை எது?",            opts:["Destruction","Creativity","Laziness","Weakness"], ans:1 },
+    { id:86,  q:"'புத்திசாலித்தனம்' என்பதன் ஆங்கில வார்த்தை எது?",        opts:["Stupidity","Intelligence","Laziness","Ignorance"],ans:1 },
+    { id:87,  q:"'முட்டாள்தனம்' என்பதன் ஆங்கில வார்த்தை எது?",            opts:["Intelligence","Wisdom","Stupidity","Knowledge"],  ans:2 },
+    { id:88,  q:"'திறமை' என்பதன் ஆங்கில வார்த்தை எது?",          opts:["Weakness","Ignorance","Talent","Laziness"],       ans:2 },
+    { id:89,  q:"'திறன்' என்பதன் ஆங்கில வார்த்தை எது?",           opts:["Weakness","Skill","Stupidity","Fear"],            ans:1 },
+    { id:90,  q:"'அனுபவம்' என்பதன் ஆங்கில வார்த்தை எது?",                 opts:["Ignorance","Theory","Experience","Imagination"],  ans:2 },
+    { id:91,  q:"'கல்வி' என்பதன் ஆங்கில வார்த்தை எது?",                   opts:["Ignorance","Education","Laziness","Fear"],        ans:1 },
+    { id:92,  q:"'கற்றல்' என்பதன் ஆங்கில வார்த்தை எது?",                  opts:["Forgetting","Teaching","Learning","Ignorance"],   ans:2 },
+    { id:93,  q:"'கற்பித்தல்' என்பதன் ஆங்கில வார்த்தை எது?",              opts:["Learning","Teaching","Studying","Ignoring"],      ans:1 },
+    { id:94,  q:"'வேலை' என்பதன் ஆங்கில வார்த்தை எது?",                    opts:["Rest","Sleep","Work","Laziness"],                 ans:2 },
+    { id:95,  q:"'ஓய்வு' என்பதன் ஆங்கில வார்த்தை எது?",                   opts:["Work","Rest","Energy","Speed"],                   ans:1 },
+    { id:96,  q:"'தூக்கம்' என்பதன் ஆங்கில வார்த்தை எது?",                 opts:["Rest","Dream","Sleep","Energy"],                  ans:2 },
+    { id:97,  q:"'பசி' என்பதன் ஆங்கில வார்த்தை எது?",                     opts:["Thirst","Hunger","Sleep","Pain"],                 ans:1 },
+    { id:98,  q:"'தாகம்' என்பதன் ஆங்கில வார்த்தை எது?",                   opts:["Hunger","Sleep","Thirst","Pain"],                 ans:2 },
+    { id:99,  q:"'சக்தி' என்பதன் ஆங்கில வார்த்தை எது?",                   opts:["Weakness","Laziness","Energy","Fear"],            ans:2 },
+    { id:100, q:"'வலிமை' என்பதன் ஆங்கில வார்த்தை எது?",                   opts:["Weakness","Power","Laziness","Fear"],             ans:1 },
+    { id:101, q:"'அதிகாரம்' என்பதன் ஆங்கில வார்த்தை எது?",                opts:["Weakness","Freedom","Authority","Obedience"],     ans:2 },
+    { id:102, q:"'பொறுப்பு' என்பதன் ஆங்கில வார்த்தை எது?",                opts:["Freedom","Responsibility","Laziness","Ignorance"],ans:1 },
+    { id:103, q:"'கடமை' என்பதன் ஆங்கில வார்த்தை எது?",                    opts:["Right","Freedom","Duty","Laziness"],              ans:2 },
+    { id:104, q:"'உரிமை' என்பதன் ஆங்கில வார்த்தை எது?",                   opts:["Duty","Right","Responsibility","Slavery"],        ans:1 },
+    { id:105, q:"'விடுதலை' என்பதன் ஆங்கில வார்த்தை எது?",                 opts:["Slavery","Captivity","Freedom","Duty"],           ans:2 },
+    { id:106, q:"'சமத்துவம்' என்பதன் ஆங்கில வார்த்தை எது?",               opts:["Inequality","Equality","Diversity","Unity"],      ans:1 },
+    { id:107, q:"'ஒற்றுமை' என்பதன் ஆங்கில வார்த்தை எது?",                 opts:["Division","Diversity","Unity","Conflict"],        ans:2 },
+    { id:108, q:"'பன்முகத்தன்மை' என்பதன் ஆங்கில வார்த்தை எது?",           opts:["Unity","Diversity","Equality","Peace"],           ans:1 },
+    { id:109, q:"'பண்பாடு' என்பதன் ஆங்கில வார்த்தை எது?",                 opts:["Tradition","Culture","Custom","Language"],        ans:1 },
+    { id:110, q:"'மரபு' என்பதன் ஆங்கில வார்த்தை எது?",                    opts:["Culture","Tradition","Custom","Change"],          ans:1 },
+    { id:111, q:"'வழக்கம்' என்பதன் ஆங்கில வார்த்தை எது?",                 opts:["Tradition","Language","Custom","Culture"],        ans:2 },
+    { id:112, q:"'மொழி' என்பதன் ஆங்கில வார்த்தை எது?",                    opts:["Music","Art","Language","Culture"],               ans:2 },
+    { id:113, q:"'இசை' என்பதன் ஆங்கில வார்த்தை எது?",                     opts:["Art","Music","Language","Literature"],            ans:1 },
+    { id:114, q:"'கலை' என்பதன் ஆங்கில வார்த்தை எது?",                     opts:["Music","Art","Science","Poetry"],                 ans:1 },
+    { id:115, q:"'இலக்கியம்' என்பதன் ஆங்கில வார்த்தை எது?",               opts:["Music","Science","Literature","Art"],             ans:2 },
+    { id:116, q:"'கவிதை' என்பதன் ஆங்கில வார்த்தை எது?",                   opts:["Music","Art","Poetry","Literature"],              ans:2 },
+    { id:117, q:"'அறிவியல்' என்பதன் ஆங்கில வார்த்தை எது?",                opts:["Art","Poetry","Science","Music"],                 ans:2 },
+    { id:118, q:"'தொழில்நுட்பம்' என்பதன் ஆங்கில வார்த்தை எது?",           opts:["Nature","Science","Technology","Art"],            ans:2 },
+    { id:119, q:"'இயற்கை' என்பதன் ஆங்கில வார்த்தை எது?",                  opts:["Technology","Nature","Environment","Science"],    ans:1 },
+    { id:120, q:"'சுற்றுச்சூழல்' என்பதன் ஆங்கில வார்த்தை எது?",           opts:["Nature","Environment","Pollution","Technology"],  ans:1 },
+    { id:121, q:"'மாசுபாடு' என்பதன் ஆங்கில வார்த்தை எது?",                opts:["Nature","Environment","Pollution","Development"],  ans:2 },
+    { id:122, q:"'வளர்ச்சி' என்பதன் ஆங்கில வார்த்தை எது?",  opts:["Destruction","Development","Pollution","Change"], ans:1 },
+    { id:123, q:"'முன்னேற்றம்' என்பதன் ஆங்கில வார்த்தை எது?",              opts:["Decline","Progress","Failure","Destruction"],    ans:1 },
+    { id:124, q:"'மாற்றம்' என்பதன் ஆங்கில வார்த்தை எது?",                 opts:["Stability","Permanence","Change","Progress"],    ans:2 },
+    { id:125, q:"'மேம்பாடு' என்பதன் ஆங்கில வார்த்தை எது?",                opts:["Decline","Improvement","Failure","Damage"],       ans:1 },
+    { id:126, q:"'தரம்' என்பதன் ஆங்கில வார்த்தை எது?",                    opts:["Quantity","Quality","Speed","Weight"],            ans:1 },
+    { id:127, q:"'அளவு' என்பதன் ஆங்கில வார்த்தை எது?",          opts:["Quality","Weight","Quantity","Size"],             ans:2 },
+    { id:128, q:"'வேகம்' என்பதன் ஆங்கில வார்த்தை எது?",                   opts:["Distance","Speed","Weight","Height"],             ans:1 },
+    { id:129, q:"'தூரம்' என்பதன் ஆங்கில வார்த்தை எது?",                   opts:["Height","Distance","Depth","Speed"],              ans:1 },
+    { id:130, q:"'உயரம்' என்பதன் ஆங்கில வார்த்தை எது?",                   opts:["Depth","Width","Height","Distance"],              ans:2 },
+    { id:131, q:"'ஆழம்' என்பதன் ஆங்கில வார்த்தை எது?",                    opts:["Height","Depth","Width","Weight"],                ans:1 },
+    { id:132, q:"'அகலம்' என்பதன் ஆங்கில வார்த்தை எது?",                   opts:["Height","Depth","Width","Distance"],              ans:2 },
+    { id:133, q:"'எடை' என்பதன் ஆங்கில வார்த்தை எது?",                     opts:["Height","Speed","Weight","Distance"],             ans:2 },
+    { id:134, q:"'வெப்பநிலை' என்பதன் ஆங்கில வார்த்தை எது?",               opts:["Pressure","Sound","Temperature","Motion"],       ans:2 },
+    { id:135, q:"'அழுத்தம்' என்பதன் ஆங்கில வார்த்தை எது?",                opts:["Temperature","Pressure","Motion","Sound"],       ans:1 },
+    { id:136, q:"'இயக்கம்' என்பதன் ஆங்கில வார்த்தை எது?",                 opts:["Sound","Motion","Silence","Light"],               ans:1 },
+    { id:137, q:"'ஒலி' என்பதன் ஆங்கில வார்த்தை எது?",                     opts:["Silence","Light","Sound","Darkness"],             ans:2 },
+    { id:138, q:"'ஒளி' என்பதன் ஆங்கில வார்த்தை எது?",                     opts:["Darkness","Sound","Light","Silence"],             ans:2 },
+    { id:139, q:"'இருள்' என்பதன் ஆங்கில வார்த்தை எது?",                   opts:["Light","Brightness","Darkness","Colour"],         ans:2 },
+    { id:140, q:"'நிறம்' என்பதன் ஆங்கில வார்த்தை எது?",                   opts:["Shape","Size","Colour","Weight"],                 ans:2 },
+    { id:141, q:"'வடிவம்' என்பதன் ஆங்கில வார்த்தை எது?",                  opts:["Size","Colour","Shape","Weight"],                 ans:2 },
+    { id:142, q:"'வயது' என்பதன் ஆங்கில வார்த்தை எது?",                    opts:["Time","Age","Size","Speed"],                      ans:1 },
+    { id:143, q:"'விசை' என்பதன் ஆங்கில வார்த்தை எது?",                    opts:["Speed","Weight","Force","Motion"],                ans:2 },
+    { id:144, q:"'உண்மைத்தன்மை' என்பதன் ஆங்கில வார்த்தை எது?",            opts:["Deception","Truthfulness","Lie","Dishonesty"],    ans:1 },
+    { id:145, q:"'ஏற்பு' என்பதன் ஆங்கில வார்த்தை எது?",                   opts:["Rejection","Acceptance","Denial","Refusal"],     ans:1 },
+    { id:146, q:"'பாராட்டு' என்பதன் ஆங்கில வார்த்தை எது?",   opts:["Rejection","Admiration","Hatred","Disgust"],      ans:1 },
+    { id:147, q:"'வழிபாடு' என்பதன் ஆங்கில வார்த்தை எது?",                 opts:["Rejection","Adoration","Hatred","Fear"],          ans:1 },
+    { id:148, q:"'பாசம்' என்பதன் ஆங்கில வார்த்தை எது?",                   opts:["Hatred","Indifference","Affection","Anger"],      ans:2 },
+    { id:149, q:"'வேதனை' என்பதன் ஆங்கில வார்த்தை எது?",                   opts:["Joy","Agony","Peace","Relief"],                   ans:1 },
+    { id:150, q:"'எச்சரிக்கை' என்பதன் ஆங்கில வார்த்தை எது?",      opts:["Peace","Alarm","Calm","Comfort"],                 ans:1 },
+    { id:151, q:"'வியப்பு' என்பதன் ஆங்கில வார்த்தை எது?",                 opts:["Boredom","Amazement","Sadness","Fear"],           ans:1 },
+    { id:152, q:"'லட்சியம்' என்பதன் ஆங்கில வார்த்தை எது?",                opts:["Laziness","Ambition","Failure","Fear"],           ans:1 },
+    { id:153, q:"'பொழுதுபோக்கு' என்பதன் ஆங்கில வார்த்தை எது?",            opts:["Boredom","Amusement","Stress","Sadness"],         ans:1 },
+    { id:154, q:"'சினம்' என்பதன் ஆங்கில வார்த்தை எது?",                   opts:["Peace","Anger","Joy","Calm"],                     ans:1 },
+    { id:155, q:"'மனவேதனை' என்பதன் ஆங்கில வார்த்தை எது?",                 opts:["Joy","Anguish","Peace","Happiness"],              ans:1 },
+    { id:156, q:"'எரிச்சல்' என்பதன் ஆங்கில வார்த்தை எது?",                opts:["Pleasure","Annoyance","Joy","Peace"],             ans:1 },
+    { id:157, q:"'எதிர்பார்ப்பு' என்பதன் ஆங்கில வார்த்தை எது?",           opts:["Disappointment","Anticipation","Despair","Regret"],ans:1 },
+    { id:158, q:"'பதற்றம்' என்பதன் ஆங்கில வார்த்தை எது?",                 opts:["Calm","Anxiety","Peace","Joy"],                   ans:1 },
+    { id:159, q:"'அக்கறையின்மை' என்பதன் ஆங்கில வார்த்தை எது?",  opts:["Care","Love","Apathy","Interest"],                 ans:2 },
+    { id:160, q:"'பாராட்டு' என்பதன் ஆங்கில வார்த்தை எது?", opts:["Rejection","Appreciation","Disgust","Hatred"],    ans:1 },
+    { id:161, q:"'ஒப்புதல்' என்பதன் ஆங்கில வார்த்தை எது?",                opts:["Rejection","Denial","Approval","Disapproval"],   ans:2 },
+    { id:162, q:"'மரியாதை' என்பதன் ஆங்கில வார்த்தை எது?",           opts:["Disrespect","Awe","Hatred","Fear"],               ans:1 },
+    { id:163, q:"'கசப்பு' என்பதன் ஆங்கில வார்த்தை எது?",                  opts:["Sweetness","Bitterness","Joy","Love"],            ans:1 },
+    { id:164, q:"'பேரின்பம்' என்பதன் ஆங்கில வார்த்தை எது?",               opts:["Misery","Bliss","Sadness","Anger"],               ans:1 },
+    { id:165, q:"'துணிச்சல்' என்பதன் ஆங்கில வார்த்தை எது?",    opts:["Cowardice","Boldness","Fear","Weakness"],          ans:1 },
+    { id:166, q:"'பிரகாசம்' என்பதன் ஆங்கில வார்த்தை எது?",                opts:["Darkness","Brightness","Shadow","Gloom"],         ans:1 },
+    { id:167, q:"'திறமை' என்பதன் ஆங்கில வார்த்தை எது?",      opts:["Stupidity","Ignorance","Brilliance","Laziness"],  ans:2 },
+    { id:168, q:"'திறமை' என்பதன் ஆங்கில வார்த்தை எது?",      opts:["Weakness","Failure","Capability","Ignorance"],    ans:2 },
+    { id:169, q:"'எச்சரிக்கை' என்பதன் ஆங்கில வார்த்தை எது?",   opts:["Recklessness","Caution","Boldness","Fear"],       ans:1 },
+    { id:170, q:"'உறுதி' என்பதன் ஆங்கில வார்த்தை எது?",       opts:["Doubt","Certainty","Confusion","Fear"],           ans:1 },
+    { id:171, q:"'குழப்பம்' என்பதன் ஆங்கில வார்த்தை எது?",        opts:["Order","Peace","Chaos","Clarity"],                ans:2 },
+    { id:172, q:"'தொண்டு' என்பதன் ஆங்கில வார்த்தை எது?",                  opts:["Greed","Selfishness","Charity","Cruelty"],        ans:2 },
+    { id:173, q:"'கவர்ச்சி' என்பதன் ஆங்கில வார்த்தை எது?",                opts:["Ugliness","Charm","Dullness","Fear"],             ans:1 },
+    { id:174, q:"'மகிழ்ச்சி' என்பதன் ஆங்கில வார்த்தை எது?",opts:["Sadness","Gloom","Cheerfulness","Anger"],         ans:2 },
+    { id:175, q:"'சாமர்த்தியம்' என்பதன் ஆங்கில வார்த்தை எது?",            opts:["Stupidity","Cleverness","Ignorance","Laziness"],  ans:1 },
+    { id:176, q:"'ஆறுதல்' என்பதன் ஆங்கில வார்த்தை எது?",                  opts:["Discomfort","Pain","Comfort","Stress"],           ans:2 },
+    { id:177, q:"'இரக்கம்' என்பதன் ஆங்கில வார்த்தை எது?",    opts:["Cruelty","Indifference","Compassion","Hatred"],   ans:2 },
+    { id:178, q:"'கவனம்' என்பதன் ஆங்கில வார்த்தை எது?",                                                                                 opts:["Distraction","Concentration","Laziness","Sleep"],ans:1 },
+    { id:179, q:"'நம்பிக்கை' என்பதன் ஆங்கில வார்த்தை எது?",  opts:["Doubt","Fear","Confidence","Weakness"],           ans:2 },
+    { id:180, q:"'திருப்தி' என்பதன் ஆங்கில வார்த்தை எது?",                opts:["Discontent","Contentment","Sadness","Anger"],     ans:1 },
+    { id:181, q:"'ஒத்துழைப்பு' என்பதன் ஆங்கில வார்த்தை எது?",             opts:["Conflict","Competition","Cooperation","Hatred"],  ans:2 },
+    { id:182, q:"'துணிவு' என்பதன் ஆங்கில வார்த்தை எது?",         opts:["Fear","Weakness","Courage","Cowardice"],          ans:2 },
+    { id:183, q:"'ஆர்வம்' என்பதன் ஆங்கில வார்த்தை எது?",      opts:["Boredom","Indifference","Curiosity","Apathy"],    ans:2 },
+    { id:184, q:"'துணிச்சல்' என்பதன் ஆங்கில வார்த்தை எது?",      opts:["Cowardice","Daring","Fear","Weakness"],            ans:1 },
+    { id:185, q:"'வஞ்சகம்' என்பதன் ஆங்கில வார்த்தை எது?",                 opts:["Honesty","Deceit","Truth","Kindness"],            ans:1 },
+    { id:186, q:"'அர்ப்பணிப்பு' என்பதன் ஆங்கில வார்த்தை எது?",            opts:["Laziness","Dedication","Indifference","Neglect"], ans:1 },
+    { id:187, q:"'தோல்வி' என்பதன் ஆங்கில வார்த்தை எது?",         opts:["Victory","Success","Defeat","Progress"],          ans:2 },
+    { id:188, q:"'மகிழ்ச்சி' என்பதன் ஆங்கில வார்த்தை எது?",    opts:["Sadness","Anger","Delight","Pain"],               ans:2 },
+    { id:189, q:"'சார்பு' என்பதன் ஆங்கில வார்த்தை எது?",                  opts:["Independence","Dependence","Freedom","Strength"],  ans:1 },
+    { id:190, q:"'மனச்சோர்வு' என்பதன் ஆங்கில வார்த்தை எது?", opts:["Happiness","Depression","Joy","Excitement"],      ans:1 },
+    { id:191, q:"'ஆசை' என்பதன் ஆங்கில வார்த்தை எது?",                     opts:["Hatred","Desire","Indifference","Fear"],          ans:1 },
+    { id:192, q:"'நிராசை' என்பதன் ஆங்கில வார்த்தை எது?",                  opts:["Hope","Joy","Desperation","Peace"],               ans:2 },
+    { id:193, q:"'உறுதி' என்பதன் ஆங்கில வார்த்தை எது?",   opts:["Weakness","Confusion","Determination","Fear"],    ans:2 },
+    { id:194, q:"'பக்தி' என்பதன் ஆங்கில வார்த்தை எது?",        opts:["Indifference","Devotion","Hatred","Neglect"],     ans:1 },
+    { id:195, q:"'கௌரவம்' என்பதன் ஆங்கில வார்த்தை எது?",                  opts:["Shame","Dignity","Disgrace","Weakness"],          ans:1 },
+    { id:196, q:"'ஏமாற்றம்' என்பதன் ஆங்கில வார்த்தை எது?",                opts:["Satisfaction","Disappointment","Joy","Hope"],     ans:1 },
+    { id:197, q:"'ஒழுக்கம்' என்பதன் ஆங்கில வார்த்தை எது?",                opts:["Chaos","Laziness","Discipline","Disorder"],       ans:2 },
+    { id:198, q:"'வெறுப்பு' என்பதன் ஆங்கில வார்த்தை எது?",      opts:["Love","Affection","Disgust","Kindness"],          ans:2 },
+    { id:199, q:"'சந்தேகம்' என்பதன் ஆங்கில வார்த்தை எது?",                opts:["Certainty","Doubt","Trust","Clarity"],            ans:1 },
+    { id:200, q:"'ஆர்வம்' என்பதன் ஆங்கில வார்த்தை எது?",      opts:["Laziness","Boredom","Eagerness","Apathy"],        ans:2 },
+    { id:201, q:"'உணர்ச்சி' என்பதன் ஆங்கில வார்த்தை எது?",                opts:["Indifference","Earnestness","Apathy","Laziness"], ans:1 },
+    { id:202, q:"'எளிமை' என்பதன் ஆங்கில வார்த்தை எது?",                   opts:["Difficulty","Ease","Complexity","Hardship"],      ans:1 },
+    { id:203, q:"'பரவசம்' என்பதன் ஆங்கில வார்த்தை எது?",                  opts:["Misery","Agony","Ecstasy","Sadness"],             ans:2 },
+    { id:204, q:"'சங்கடம்' என்பதன் ஆங்கில வார்த்தை எது?",                 opts:["Confidence","Pride","Embarrassment","Joy"],       ans:2 },
+    { id:205, q:"'பச்சாதாபம்' என்பதன் ஆங்கில வார்த்தை எது?",              opts:["Cruelty","Indifference","Empathy","Hatred"],      ans:2 },
+    { id:206, q:"'ஊக்கம்' என்பதன் ஆங்கில வார்த்தை எது?",  opts:["Discouragement","Encouragement","Fear","Sadness"], ans:1 },
+    { id:207, q:"'சகிப்புத்தன்மை' என்பதன் ஆங்கில வார்த்தை எது?",          opts:["Weakness","Endurance","Laziness","Surrender"],    ans:1 },
+    { id:208, q:"'உற்சாகம்' என்பதன் ஆங்கில வார்த்தை எது?",   opts:["Boredom","Apathy","Enthusiasm","Sadness"],        ans:2 },
+    { id:209, q:"'நித்தியம்' என்பதன் ஆங்கில வார்த்தை எது?",               opts:["Time","Moment","Eternity","Age"],                 ans:2 },
+    { id:210, q:"'தீமை' என்பதன் ஆங்கில வார்த்தை எது?",                    opts:["Goodness","Evil","Virtue","Kindness"],            ans:1 },
+    { id:211, q:"'சிறப்பு' என்பதன் ஆங்கில வார்த்தை எது?",                 opts:["Mediocrity","Excellence","Failure","Weakness"],   ans:1 },
+    { id:212, q:"'சோர்வு' என்பதன் ஆங்கில வார்த்தை எது?",                  opts:["Energy","Exhaustion","Strength","Excitement"],    ans:1 },
+    { id:213, q:"'உண்மைத்தன்மை' என்பதன் ஆங்கில வார்த்தை எது?", opts:["Betrayal","Faithfulness","Deception","Dishonesty"], ans:1 },
+    { id:214, q:"'புகழ்' என்பதன் ஆங்கில வார்த்தை எது?",                   opts:["Obscurity","Fame","Shame","Failure"],             ans:1 },
+    { id:215, q:"'பரிச்சயம்' என்பதன் ஆங்கில வார்த்தை எது?",               opts:["Strangeness","Familiarity","Fear","Distance"],    ans:1 },
+    { id:216, q:"'ஈர்ப்பு' என்பதன் ஆங்கில வார்த்தை எது?",                 opts:["Repulsion","Boredom","Fascination","Hatred"],     ans:2 },
+    { id:217, q:"'களைப்பு' என்பதன் ஆங்கில வார்த்தை எது?",                 opts:["Energy","Fatigue","Excitement","Strength"],       ans:1 },
+    { id:218, q:"'அச்சமின்மை' என்பதன் ஆங்கில வார்த்தை எது?",              opts:["Fear","Fearlessness","Cowardice","Weakness"],      ans:1 },
+    { id:219, q:"'கொடூரம்' என்பதன் ஆங்கில வார்த்தை எது?",                 opts:["Gentleness","Ferocity","Kindness","Mercy"],       ans:1 },
+    { id:220, q:"'விசுவாசம்' என்பதன் ஆங்கில வார்த்தை எது?",    opts:["Betrayal","Fidelity","Deceit","Disloyalty"],      ans:1 },
+    { id:221, q:"'உறுதி' என்பதன் ஆங்கில வார்த்தை எது?",        opts:["Weakness","Indecision","Firmness","Flexibility"], ans:2 },
+    { id:222, q:"'நெகிழ்வுத்தன்மை' என்பதன் ஆங்கில வார்த்தை எது?",         opts:["Rigidity","Flexibility","Firmness","Stubbornness"],ans:1 },
+    { id:223, q:"'விருப்பம்' என்பதன் ஆங்கில வார்த்தை எது?",               opts:["Hatred","Disgust","Fondness","Anger"],            ans:2 },
+    { id:224, q:"'மென்மை' என்பதன் ஆங்கில வார்த்தை எது?",      opts:["Strength","Fragility","Toughness","Power"],       ans:1 },
+    { id:225, q:"'வெளிப்படைத்தன்மை' என்பதன் ஆங்கில வார்த்தை எது?",        opts:["Deception","Frankness","Dishonesty","Secrecy"],   ans:1 },
+    { id:226, q:"'விரக்தி' என்பதன் ஆங்கில வார்த்தை எது?",                 opts:["Joy","Satisfaction","Frustration","Peace"],       ans:2 },
+    { id:227, q:"'கோபம்' என்பதன் ஆங்கில வார்த்தை எது?",            opts:["Calm","Fury","Peace","Kindness"],                 ans:1 },
+    { id:228, q:"'மென்மை' என்பதன் ஆங்கில வார்த்தை எது?",     opts:["Ferocity","Harshness","Gentleness","Cruelty"],     ans:2 },
+    { id:229, q:"'இருள்' என்பதன் ஆங்கில வார்த்தை எது?",           opts:["Brightness","Gloom","Joy","Light"],               ans:1 },
+    { id:230, q:"'மகிமை' என்பதன் ஆங்கில வார்த்தை எது?",                   opts:["Shame","Disgrace","Glory","Weakness"],            ans:2 },
+    { id:231, q:"'நன்மை' என்பதன் ஆங்கில வார்த்தை எது?",                   opts:["Evil","Badness","Goodness","Cruelty"],            ans:2 },
+    { id:232, q:"'துக்கம்' என்பதன் ஆங்கில வார்த்தை எது?",                 opts:["Joy","Happiness","Grief","Peace"],                ans:2 },
+    { id:233, q:"'குற்ற உணர்வு' என்பதன் ஆங்கில வார்த்தை எது?",            opts:["Innocence","Guilt","Pride","Joy"],                ans:1 },
+    { id:234, q:"'சந்தோஷம்' என்பதன் ஆங்கில வார்த்தை எது?",                opts:["Sadness","Happiness","Grief","Anger"],            ans:1 },
+    { id:235, q:"'இணக்கம்' என்பதன் ஆங்கில வார்த்தை எது?",                 opts:["Conflict","Harmony","Discord","Hatred"],          ans:1 },
+    { id:236, q:"'வெறுப்பு' என்பதன் ஆங்கில வார்த்தை எது?",       opts:["Love","Affection","Hatred","Kindness"],           ans:2 },
+    { id:237, q:"'தயக்கம்' என்பதன் ஆங்கில வார்த்தை எது?",                 opts:["Confidence","Hesitation","Boldness","Courage"],   ans:1 },
+    { id:238, q:"'நாணயம்' என்பதன் ஆங்கில வார்த்தை எது?",                  opts:["Dishonesty","Deceit","Honesty","Betrayal"],       ans:2 },
+    { id:239, q:"'மரியாதை' என்பதன் ஆங்கில வார்த்தை எது?",        opts:["Shame","Honour","Disgrace","Dishonesty"],         ans:1 },
+    { id:240, q:"'திகில்' என்பதன் ஆங்கில வார்த்தை எது?",                  opts:["Joy","Horror","Peace","Delight"],                 ans:1 },
+    { id:241, q:"'விருந்தோம்பல்' என்பதன் ஆங்கில வார்த்தை எது?",           opts:["Hostility","Hospitality","Hatred","Cruelty"],     ans:1 },
+    { id:242, q:"'பகைமை' என்பதன் ஆங்கில வார்த்தை எது?",                   opts:["Friendship","Peace","Hostility","Kindness"],      ans:2 },
+    { id:243, q:"'மனிதநேயம்' என்பதன் ஆங்கில வார்த்தை எது?",               opts:["Cruelty","Humanity","Hatred","Indifference"],     ans:1 },
+    { id:244, q:"'அடக்கம்' என்பதன் ஆங்கில வார்த்தை எது?",                 opts:["Pride","Arrogance","Humility","Ego"],             ans:2 },
+    { id:245, q:"'நகைச்சுவை' என்பதன் ஆங்கில வார்த்தை எது?",               opts:["Seriousness","Humour","Sadness","Anger"],         ans:1 },
+    { id:246, q:"'வெறி' என்பதன் ஆங்கில வார்த்தை எது?",         opts:["Calm","Hysteria","Peace","Patience"],             ans:1 },
+    { id:247, q:"'சோம்பல்' என்பதன் ஆங்கில வார்த்தை எது?",     opts:["Energy","Idleness","Enthusiasm","Dedication"],    ans:1 },
+    { id:248, q:"'மாயை' என்பதன் ஆங்கில வார்த்தை எது?",                    opts:["Reality","Truth","Illusion","Clarity"],           ans:2 },
+    { id:249, q:"'முக்கியத்துவம்' என்பதன் ஆங்கில வார்த்தை எது?",          opts:["Insignificance","Importance","Weakness","Neglect"],ans:1 },
+    { id:250, q:"'சுதந்திரம்' என்பதன் ஆங்கில வார்த்தை எது?",opts:["Dependence","Independence","Slavery","Obedience"],ans:1 },
+    { id:251, q:"'அக்கறையின்மை' என்பதன் ஆங்கில வார்த்தை எது?",opts:["Care","Love","Indifference","Interest"],        ans:2 },
+    { id:252, q:"'தாழ்வு' என்பதன் ஆங்கில வார்த்தை எது?",                  opts:["Superiority","Inferiority","Pride","Strength"],   ans:1 },
+    { id:253, q:"'பணவீக்கம்' என்பதன் ஆங்கில வார்த்தை எது?",               opts:["Deflation","Inflation","Wealth","Poverty"],       ans:1 },
+    { id:254, q:"'செல்வாக்கு' என்பதன் ஆங்கில வார்த்தை எது?",              opts:["Weakness","Influence","Ignorance","Poverty"],     ans:1 },
+    { id:255, q:"'அப்பாவித்தனம்' என்பதன் ஆங்கில வார்த்தை எது?",           opts:["Guilt","Experience","Innocence","Cruelty"],       ans:2 },
+    { id:256, q:"'புதுமை' என்பதன் ஆங்கில வார்த்தை எது?",                  opts:["Tradition","Innovation","Stability","Convention"],ans:1 },
+    { id:257, q:"'பைத்தியம்' என்பதன் ஆங்கில வார்த்தை எது?",    opts:["Sanity","Insanity","Wisdom","Peace"],             ans:1 },
+    { id:258, q:"'பாதுகாப்பின்மை' என்பதன் ஆங்கில வார்த்தை எது?",          opts:["Security","Insecurity","Safety","Confidence"],    ans:1 },
+    { id:259, q:"'ஊக்கம்' என்பதன் ஆங்கில வார்த்தை எது?",    opts:["Discouragement","Inspiration","Despair","Laziness"],ans:1 },
+    { id:260, q:"'நேர்மை' என்பதன் ஆங்கில வார்த்தை எது?",      opts:["Dishonesty","Integrity","Deceit","Corruption"],   ans:1 },
+    { id:261, q:"'புத்தி' என்பதன் ஆங்கில வார்த்தை எது?",                  opts:["Stupidity","Intelligence","Ignorance","Laziness"],ans:1 },
+    { id:262, q:"'தீவிரம்' என்பதன் ஆங்கில வார்த்தை எது?",                 opts:["Mildness","Intensity","Calm","Weakness"],         ans:1 },
+    { id:263, q:"'நோக்கம்' என்பதன் ஆங்கில வார்த்தை எது?",                 opts:["Aimlessness","Intention","Confusion","Doubt"],    ans:1 },
+    { id:264, q:"'நெருக்கம்' என்பதன் ஆங்கில வார்த்தை எது?",               opts:["Distance","Intimacy","Indifference","Separation"],ans:1 },
+    { id:265, q:"'உள்ளுணர்வு' என்பதன் ஆங்கில வார்த்தை எது?",              opts:["Ignorance","Intuition","Confusion","Doubt"],      ans:1 },
+    { id:266, q:"'மகிழ்ச்சி' என்பதன் ஆங்கில வார்த்தை எது?",  opts:["Sadness","Anger","Joyfulness","Grief"],           ans:2 },
+    { id:267, q:"'தீர்ப்பு' என்பதன் ஆங்கில வார்த்தை எது?",                opts:["Injustice","Judgment","Doubt","Confusion"],       ans:1 },
+    { id:268, q:"'கருணை' என்பதன் ஆங்கில வார்த்தை எது?",        opts:["Cruelty","Kindness","Hatred","Anger"],            ans:1 },
+    { id:269, q:"'சிரிப்பு' என்பதன் ஆங்கில வார்த்தை எது?",                opts:["Sadness","Laughter","Anger","Grief"],             ans:1 },
+    { id:270, q:"'சோம்பல்' என்பதன் ஆங்கில வார்த்தை எது?",      opts:["Energy","Laziness","Dedication","Enthusiasm"],    ans:1 },
+    { id:271, q:"'தலைமைத்துவம்' என்பதன் ஆங்கில வார்த்தை எது?",            opts:["Obedience","Leadership","Weakness","Following"],  ans:1 },
+    { id:272, q:"'தனிமை' என்பதன் ஆங்கில வார்த்தை எது?",                   opts:["Company","Loneliness","Friendship","Unity"],      ans:1 },
+    { id:273, q:"'ஏக்கம்' என்பதன் ஆங்கில வார்த்தை எது?",                  opts:["Satisfaction","Longing","Contentment","Joy"],     ans:1 },
+    { id:274, q:"'காதல்' என்பதன் ஆங்கில வார்த்தை எது?",                   opts:["Hatred","Indifference","Love","Anger"],           ans:2 },
+    { id:275, q:"'அதிர்ஷ்டம்' என்பதன் ஆங்கில வார்த்தை எது?",              opts:["Misfortune","Luck","Failure","Sadness"],          ans:1 },
+    { id:276, q:"'ஆடம்பரம்' என்பதன் ஆங்கில வார்த்தை எது?",                opts:["Simplicity","Poverty","Luxury","Hardship"],       ans:2 },
+    { id:277, q:"'பைத்தியம்' என்பதன் ஆங்கில வார்த்தை எது?",     opts:["Sanity","Wisdom","Madness","Calmness"],           ans:2 },
+    { id:278, q:"'முதிர்ச்சி' என்பதன் ஆங்கில வார்த்தை எது?",              opts:["Childishness","Maturity","Immaturity","Youth"],   ans:1 },
+    { id:279, q:"'மனச்சோர்வு' என்பதன் ஆங்கில வார்த்தை எது?", opts:["Joy","Excitement","Melancholy","Happiness"],       ans:2 },
+];
+
+let shuffleOn = localStorage.getItem('mk_shuffle') === '1';
+let autoNextOn = localStorage.getItem('mk_autonext') === '1';
+let lightMode = localStorage.getItem('mk_theme') === '1';
+let order = [];
+let current = 0;
+let score = 0;
+let answered = false;
+let log = [];
+let autoNextTimer = null;
+let studentInfo = {};
+let quizStartTime = null;
+let saveOn = localStorage.getItem('mk_save') === '1';
+let reportShown = false;
+
+function init() {
+  order = QUESTIONS.map((_, i) => i);
+  if (shuffleOn) order.sort(() => Math.random() - 0.5);
+  current = 0; score = 0; log = []; answered = false; quizStartTime = new Date(); reportShown = false;
+  document.getElementById('quiz-section').style.display = 'block';
+  document.getElementById('report-section').classList.remove('show');
+  renderQuestion();
+}
+
+function getFormattedDateTime() {
+  const now = new Date();
+  const days = ["ஞாயிறு","திங்கள்","செவ்வாய்","புதன்","வியாழன்","வெள்ளி","சனி"];
+  const months = ["ஜனவரி","பிப்ரவரி","மார்ச்","ஏப்ரல்","மே","ஜூன்","ஜூலை","ஆகஸ்ட்","செப்டம்பர்","அக்டோபர்","நவம்பர்","டிசம்பர்"];
+  const dayName = days[now.getDay()];
+  const date = now.getDate();
+  const month = months[now.getMonth()];
+  const year = now.getFullYear();
+  const rawHr = now.getHours();
+  const min = String(now.getMinutes()).padStart(2, "0");
+  let ampm;
+  if (rawHr >= 0 && rawHr < 4)       ampm = "நள்ளிரவு";
+  else if (rawHr >= 4 && rawHr < 12)  ampm = "காலை";
+  else if (rawHr >= 12 && rawHr < 17) ampm = "மதியம்";
+  else if (rawHr >= 17 && rawHr < 20) ampm = "மாலை";
+  else                                 ampm = "இரவு";
+  const hr = rawHr % 12 || 12;
+  return "📅 " + dayName + ", " + date + " " + month + " " + year + " — ⏰ " + ampm + " " + hr + ":" + min;
+}
+
+function renderQuestion() {
+  clearTimeout(autoNextTimer);
+  const qi = order[current];
+  const q = QUESTIONS[qi];
+
+  const total = order.length;
+  answered = false;
+
+  document.getElementById('prog-label').textContent = `கேள்வி ${current + 1} / ${total}`;
+  document.getElementById('prog-score').textContent = `மதிப்பெண்: ${score}`;
+  document.getElementById('progressBar').style.width = (current / total * 100) + '%';
+
+  const labels = ['A','B','C','D'];
+  let html = `<div class="question-card">
+    <div class="q-number">கேள்வி ${current + 1}</div>
+    <div class="q-text">${q.q}</div>
+    <div class="options">`;
+  q.opts.forEach((opt, i) => {
+    html += `<button class="option-btn" id="opt${i}" onclick="selectOpt(${i})">
+      <span class="opt-label">${labels[i]}</span>
+      <span>${opt}</span>
+      <span class="opt-icon" id="icon${i}"></span>
+    </button>`;
+  });
+  html += `</div>
+    <div class="explanation" id="explanation">${q.exp}</div>
+  </div>
+  <button class="next-btn" id="nextBtn" onclick="nextQuestion()">
+    ${current + 1 < total ? 'அடுத்த கேள்வி →' : 'அறிக்கையை காண →'}
+  </button>`;
+  document.getElementById('question-area').innerHTML = html;
+}
+
+function selectOpt(chosen) {
+  if (answered) return;
+  answered = true;
+  const qi = order[current];
+  const q = QUESTIONS[qi];
+  const isCorrect = chosen === q.ans;
+  const labels = ['A','B','C','D'];
+
+  if (isCorrect) score++;
+
+  q.opts.forEach((_, i) => {
+    const btn = document.getElementById('opt' + i);
+    btn.disabled = true;
+    if (i === q.ans) {
+      btn.classList.add('correct');
+      document.getElementById('icon' + i).textContent = '✓';
+    }
+    if (i === chosen && !isCorrect) {
+      btn.classList.add('wrong');
+      document.getElementById('icon' + i).textContent = '✗';
+    }
+  });
+
+  document.getElementById('explanation').classList.add('show');
+  document.getElementById('nextBtn').classList.add('visible');
+  document.getElementById('prog-score').textContent = `மதிப்பெண்: ${score}`;
+
+  log.push({
+    qi, chosen, correct: isCorrect,
+    q: q.q,
+    chosenText: q.opts[chosen],
+    correctText: q.opts[q.ans]
+  });
+
+  if (autoNextOn) {
+    autoNextTimer = setTimeout(nextQuestion, 2000);
+  }
+}
+
+function nextQuestion() {
+  clearTimeout(autoNextTimer);
+  current++;
+  if (current >= order.length) {
+    showReport();
+  } else {
+    renderQuestion();
+  }
+}
+
+function showReport() {
+  if (reportShown) return;
+  reportShown = true;
+  clearTimeout(autoNextTimer);
+  document.getElementById('quiz-section').style.display = 'none';
+  const section = document.getElementById('report-section');
+  section.classList.add('show');
+
+  const si = studentInfo;
+  const tag = document.getElementById('studentTag');
+  if (tag) tag.textContent = si.roll ? `👤 ${si.roll} - ${si.name} - ${si.cls} வகுப்பு - ${si.sec} பிரிவு` : '';
+
+  document.getElementById("quizDateTime").textContent = getFormattedDateTime();
+
+  const elapsed = Math.floor((new Date() - quizStartTime) / 1000);
+  const eMins = Math.floor(elapsed / 60);
+  const eSecs = elapsed % 60;
+  const durationText = eMins > 0
+    ? eMins + " நிமிடம் " + eSecs + " வினாடி"
+    : eSecs + " வினாடி";
+  document.getElementById("quizDuration").textContent = "⏱️ எடுத்த நேரம்: " + durationText;
+
+  const total = order.length;
+  const pct = Math.round(score / total * 100);
+
+  document.getElementById('scoreCircle').style.background =
+    `conic-gradient(var(--teal) ${pct * 3.6}deg, var(--surface2) 0)`;
+  document.getElementById('scoreVal').textContent = pct + '%';
+  document.getElementById('totalCount').textContent = total;
+  document.getElementById('correctCount').textContent = score;
+  document.getElementById('wrongCount').textContent = total - score;
+
+  if (saveOn) saveReport();
+  renderLog();
+  logOpen = true;
+  document.getElementById('logArrow').textContent = '▲';
+  setTimeout(() => {
+    const el = document.getElementById('logCollapse');
+    el.style.maxHeight = el.scrollHeight + 'px';
+  }, 50);
+}
+
+function renderLog() {
+  const cont = document.getElementById('resultLog');
+  if (!log.length) {
+    cont.innerHTML = '<div class="no-results">பதிவுகள் இல்லை</div>';
+    return;
+  }
+  cont.innerHTML = log.map((entry, idx) => {
+    const isC = entry.correct;
+    return `<div class="log-row ${isC ? 'lr-correct' : 'lr-wrong'}">
+      <div class="lr-num">${idx + 1}</div>
+      <div>
+        <div class="lr-q">${entry.q}</div>
+        <div class="lr-ans">
+          ${isC
+            ? `<span class="ans-given">✓ ${entry.chosenText}</span>`
+            : `<span class="ans-given">✗ ${entry.chosenText}</span>
+               &nbsp;→&nbsp;
+               <span class="ans-correct">✓ ${entry.correctText}</span>`
+          }
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+  setTimeout(() => {
+    const el = document.getElementById('logCollapse');
+    if (el && logOpen) el.style.maxHeight = el.scrollHeight + 'px';
+  }, 30);
+}
+
+let logOpen = true;
+
+function toggleLog() {
+  logOpen = !logOpen;
+  const el = document.getElementById('logCollapse');
+  const arrow = document.getElementById('logArrow');
+  if (logOpen) {
+    el.style.maxHeight = el.scrollHeight + 'px';
+    arrow.textContent = '▲';
+  } else {
+    el.style.maxHeight = '0px';
+    arrow.textContent = '▼';
+  }
+}
+
+function clearLog(e) {
+  if (e) e.stopPropagation();
+  if (!confirm('பதிவை அழிக்கவா?')) return;
+  log = [];
+  score = 0;
+  reportShown = false;
+  document.getElementById('correctCount').textContent = '0';
+  document.getElementById('wrongCount').textContent = '0';
+  document.getElementById('scoreVal').textContent = '0%';
+  document.getElementById('scoreCircle').style.background =
+    `conic-gradient(var(--teal) 0deg, var(--surface2) 0)`;
+  renderLog();
+  showToast('பதிவு அழிக்கப்பட்டது');
+}
+
+function shareWhatsApp() {
+  const total = order.length;
+  if (!total) return;
+  const pct = Math.round(score / total * 100);
+  const dt = document.getElementById("quizDateTime").textContent;
+  const si = studentInfo;
+  const siLine = si.roll ? `👤 ${si.roll} - ${si.name} - ${si.cls} - ${si.sec}\n` : '';
+  let msg = "*MK Education Centre - Quiz அறிக்கை*\n";
+  msg += siLine;
+  msg += dt + "\n";
+  const durEl = document.getElementById("quizDuration");
+  const durLine = durEl ? durEl.textContent + "\n" : "";
+  msg += "━━━━━━━━━━━━━━━━━━━━\n";
+  msg += durLine;
+  msg += "📊 *மதிப்பெண்: " + pct + "%* (" + score + "/" + total + ")\n";
+  msg += "✅ சரி: " + score + "  ❌ தவறு: " + (total - score) + "\n";
+  msg += "━━━━━━━━━━━━━━━━━━━━\n";
+  const wrongEntries = log.filter(e => !e.correct);
+  if (wrongEntries.length > 0) {
+    msg += "❌ *தவறான கேள்விகள்:*\n";
+    wrongEntries.forEach((entry, i) => {
+      msg += (i+1) + ". " + entry.q + "\n";
+      msg += "   உங்கள் விடை: " + entry.chosenText + "\n";
+      msg += "   சரியான விடை: ✓ " + entry.correctText + "\n";
+    });
+  } else {
+    msg += "🎉 அனைத்து கேள்விகளும் சரியாக விடையளிக்கப்பட்டன!\n";
+  }
+  msg += "━━━━━━━━━━━━━━━━━━━━";
+  const url = "https://wa.me/?text=" + encodeURIComponent(msg);
+  window.open(url, "_blank");
+}
+
+function startWithInfo() {
+  const roll = document.getElementById('s_roll').value.trim();
+  const name = document.getElementById('s_name').value.trim();
+  const cls  = document.getElementById('s_class').value;
+  const sec  = document.getElementById('s_section').value;
+  if (roll === '' || !name || !cls || !sec) {
+    showToast('⚠️ அனைத்து விவரங்களையும் பதிவு செய்யவும்');
+    return;
+  }
+  studentInfo = { roll, name, cls, sec };
+  document.getElementById('studentModal').style.display = 'none';
+  init();
+}
+
+function restartQuiz() {
+  document.getElementById('report-section').classList.remove('show');
+  document.getElementById('studentModal').style.display = 'flex';
+}
+
+// MENU
+function toggleMenu() {
+  document.getElementById('dropdown').classList.toggle('open');
+}
+document.addEventListener('click', e => {
+  if (!document.getElementById('menuBtn').contains(e.target))
+    document.getElementById('dropdown').classList.remove('open');
+});
+
+function toggleShuffle(e) {
+  e.stopPropagation();
+  shuffleOn = !shuffleOn;
+  localStorage.setItem('mk_shuffle', shuffleOn ? '1' : '0');
+  document.getElementById('shuffleToggle').classList.toggle('on', shuffleOn);
+  showToast(shuffleOn ? '🔀 Shuffle இயக்கப்பட்டது' : '🔀 Shuffle நிறுத்தப்பட்டது');
+}
+function toggleTheme(e) {
+  e.stopPropagation();
+  lightMode = !lightMode;
+  localStorage.setItem('mk_theme', lightMode ? '1' : '0');
+  document.body.classList.toggle('light', lightMode);
+  document.getElementById('themeToggle').classList.toggle('on', lightMode);
+  showToast(lightMode ? '☀️ Light theme' : '🌙 Dark theme');
+}
+function toggleAutoNext(e) {
+  e.stopPropagation();
+  autoNextOn = !autoNextOn;
+  localStorage.setItem('mk_autonext', autoNextOn ? '1' : '0');
+  document.getElementById('autoNextToggle').classList.toggle('on', autoNextOn);
+  showToast(autoNextOn ? '⚡ Auto Next இயக்கப்பட்டது' : '⚡ Auto Next நிறுத்தப்பட்டது');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ── SAVE / REPORT FUNCTIONS ──
+
+function saveReport() {
+  const total = order.length;
+  const pct = Math.round(score / total * 100);
+  const dt = document.getElementById('quizDateTime').textContent;
+  const entry = { dt, score, total, pct, studentInfo: JSON.parse(JSON.stringify(studentInfo)), log: JSON.parse(JSON.stringify(log)) };
+  const saved = getSaved();
+  saved.unshift(entry);
+  localStorage.setItem('mk_saved_reports', JSON.stringify(saved));
+  updateSavedCount();
+  showToast('💾 அறிக்கை சேமிக்கப்பட்டது');
+}
+
+function getSaved() {
+  try { return JSON.parse(localStorage.getItem('mk_saved_reports') || '[]'); } catch { return []; }
+}
+
+function updateSavedCount() {
+  const n = getSaved().length;
+  const el = document.getElementById('savedCount');
+  if (el) el.textContent = n > 0 ? n : '0';
+}
+
+function goToReports(e) {
+  e.stopPropagation();
+  document.getElementById('dropdown').classList.remove('open');
+  document.getElementById('quiz-section').style.display = 'none';
+  document.getElementById('report-section').classList.remove('show');
+  document.getElementById('saved-section').style.display = 'block';
+  renderSaved();
+}
+
+function backFromReports() {
+  document.getElementById('saved-section').style.display = 'none';
+  if (reportShown) {
+    document.getElementById('report-section').classList.add('show');
+  } else {
+    document.getElementById('quiz-section').style.display = 'block';
+  }
+}
+
+function renderSaved() {
+  const saved = getSaved();
+  const cont = document.getElementById('savedList');
+  if (!saved.length) {
+    cont.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted);">சேமிக்கப்பட்ட அறிக்கைகள் இல்லை</div>';
+    return;
+  }
+  cont.innerHTML = saved.map((entry, idx) => {
+    const rows = entry.log.map((r, i) => {
+      const isC = r.correct;
+      return `<div class="log-row ${isC ? 'lr-correct' : 'lr-wrong'}">
+        <div class="lr-num">${i+1}</div>
+        <div>
+          <div class="lr-q">${r.q}</div>
+          <div class="lr-ans">${isC
+            ? `<span class="ans-given">✓ ${r.chosenText}</span>`
+            : `<span class="ans-given">✗ ${r.chosenText}</span> → <span class="ans-correct">✓ ${r.correctText}</span>`
+          }</div>
+        </div>
+      </div>`;
+    }).join('');
+    const si = entry.studentInfo;
+    const siLine = si && si.roll ? `<div style="font-size:0.82rem;color:var(--teal);font-weight:600;margin-top:2px;">👤 ${si.roll} - ${si.name} - ${si.cls} - ${si.sec}</div>` : '';
+    return `<div class="saved-card">
+      <div class="saved-card-header" onclick="toggleSavedCard(${idx})">
+        <div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span class="saved-card-score">${entry.pct}%</span>
+            <span style="font-size:0.9rem;font-weight:600;">${entry.score}/${entry.total} சரி</span>
+          </div>
+          ${siLine}
+          <div class="saved-card-meta">${entry.dt}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span id="sarrow${idx}" style="color:var(--teal);font-size:0.85rem;">▼</span>
+          <button class="saved-del-btn" onclick="deleteSaved(event,${idx})">🗑️</button>
+        </div>
+      </div>
+      <div class="saved-card-body" id="sbody${idx}" style="max-height:0px;">
+        <div class="result-log">${rows}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleSavedCard(idx) {
+  const body = document.getElementById('sbody' + idx);
+  const arrow = document.getElementById('sarrow' + idx);
+  const isOpen = body.style.maxHeight !== '0px' && body.style.maxHeight !== '';
+  if (isOpen) { body.style.maxHeight = '0px'; arrow.textContent = '▼'; }
+  else { body.style.maxHeight = body.scrollHeight + 'px'; arrow.textContent = '▲'; }
+}
+
+function deleteSaved(e, idx) {
+  e.stopPropagation();
+  const saved = getSaved();
+  saved.splice(idx, 1);
+  localStorage.setItem('mk_saved_reports', JSON.stringify(saved));
+  updateSavedCount();
+  renderSaved();
+  showToast('அறிக்கை நீக்கப்பட்டது');
+}
+
+function clearAllSaved() {
+  if (!confirm('அனைத்து சேமித்த அறிக்கைகளையும் அழிக்கவா?')) return;
+  localStorage.removeItem('mk_saved_reports');
+  updateSavedCount();
+  renderSaved();
+  showToast('அனைத்தும் அழிக்கப்பட்டது');
+}
+
+function toggleSave(e) {
+  e.stopPropagation();
+  saveOn = !saveOn;
+  localStorage.setItem('mk_save', saveOn ? '1' : '0');
+  document.getElementById('saveToggle').classList.toggle('on', saveOn);
+  showToast(saveOn ? '💾 Auto Save இயக்கப்பட்டது' : '💾 Auto Save நிறுத்தப்பட்டது');
+}
+
+// ── END SAVE FUNCTIONS ──
+
+// Start — apply saved settings on load
+document.body.classList.toggle('light', lightMode);
+document.getElementById('shuffleToggle').classList.toggle('on', shuffleOn);
+document.getElementById('themeToggle').classList.toggle('on', lightMode);
+document.getElementById('autoNextToggle').classList.toggle('on', autoNextOn);
+document.getElementById('saveToggle').classList.toggle('on', saveOn);
+updateSavedCount();
+document.getElementById('studentModal').style.display = 'flex';
+</script>
+</body>
+</html>
